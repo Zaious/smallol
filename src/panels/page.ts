@@ -39,7 +39,7 @@ function body(f: PanelFrame): string {
     const map = mapSvg(f.state, c.clock, {
       inhibitors: c.show.inhibitors, inhibTimers: c.show.inhibitors, nexusTimers: c.show.nexusTimers,
       unnamed: c.S.unnamed, unnamedTitle: esc(c.S.ui.towersUnnamed), unknownTitle: esc(c.S.ui.towersUnknown),
-      drakes: c.show.dragons ? { titles: (e) => esc(c.S.element[e as keyof typeof c.S.element] ?? e) } : undefined,
+      drakes: c.show.dragons ? { titles: (e) => esc(c.S.element[e as keyof typeof c.S.element] ?? (BAR_STRINGS[f.lang].event as Record<string, string>)[e] ?? e) } : undefined,
       pits: {
         dragon: c.show.nextDragon, top: c.show.nextBaron || c.show.herald || c.show.voidgrubs,
         titles: (k) => esc(k in c.S.element ? c.S.element[k as keyof typeof c.S.element] : (BAR_STRINGS[f.lang].event as Record<string, string>)[k] ?? k),

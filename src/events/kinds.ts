@@ -85,7 +85,7 @@ export const PRESETS = {
   work: {
     reminder: 'card', ban: 'log', pick: 'strip', bpDone: 'card', gameStart: 'card', gameEnd: 'card', seriesEnd: 'card',
     tower: 'strip', inhibTower: 'strip', nexusTower: 'strip', inhibitor: 'card',
-    drake: 'strip', herald: 'strip', grubs: 'log', soul: 'card', elder: 'card', baron: 'card',
+    drake: 'strip', herald: 'strip', grubs: 'strip', soul: 'card', elder: 'card', baron: 'card',
   },
   companion: {
     reminder: 'card', ban: 'log', pick: 'log', bpDone: 'log', gameStart: 'log', gameEnd: 'log', seriesEnd: 'log',

@@ -167,7 +167,8 @@ function drakeHead(x: number, y: number, w: number, col: string, rim: string): s
  * it over a coin and a side view, 2026-10-18), on the ledge in front of the board like a scoreboard,
  * never among the towers: blue's from the left after its code, red's from the right before its code
  * (red's row behind the far edge sat among the top lane's towers). In the order taken; elders after
- * them. With the soul, a gold rim.
+ * them. With the soul, a gold rim. Then the team's voidgrubs as small grub cylinders (0–3): the pit only
+ * shows how many are left, so who took them was nowhere (maintainer, 2026-10-24 second Swiss game).
  */
 function drakeCoins(s: MatchState, o: NonNullable<MapOptions['drakes']>): Piece[] {
   const out: Piece[] = [];
@@ -182,6 +183,13 @@ function drakeCoins(s: MatchState, o: NonNullable<MapOptions['drakes']>): Piece[
       const rim = soul && e !== 'elder' ? 'stroke="#E8B04A" stroke-width="0.45"' : RIM;
       out.push({ y: y + 200, svg: `<g class="drake"><title>${o.titles(e)}</title>${drakeHead(x, y, DRAKE_W, c, rim)}</g>` });
     });
+    const grubs = s.voidgrubs?.[t] ?? 0;
+    for (let i = 0; i < grubs; i++) {
+      const [x0, y] = P(t === 'B' ? [15, 105.5] : [87, 105.5]);
+      const k = coins.length * 5 + 1 + i * 3;
+      const x = t === 'B' ? x0 + k : x0 - k;
+      out.push({ y: y + 200, svg: `<g class="grub"><title>${o.titles('grubs')} ${grubs}</title>${cylinder(x, y, 1.25, 1.3, GRUB_COL, shade(GRUB_COL, 0.55), RIM)}</g>` });
+    }
   }
   return out;
 }
