@@ -1,6 +1,6 @@
 {
   "name": "smallol",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Unofficial desktop corner widget for following live League of Legends pro games.",
   "type": "module",
