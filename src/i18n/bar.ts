@@ -61,6 +61,8 @@ export interface BarStrings {
   upd: {
     available(tag: string): string; updateTo(tag: string): string; download(tag: string): string; check: string; checking: string;
     latest: string; downloading(pct: number | null): string; failed: string; version(v: string): string; startCheck: string;
+    /** The bar's second line when a new version is out and no game is on: one click updates (or opens the download page). */
+    notice(tag: string, installable: boolean): string;
   };
   /** Batch 3: low-key, hotkeys, presentation detection, card sound, stream address. */
   b3: {
@@ -124,6 +126,7 @@ const zh: BarStrings = {
     available: (t) => `有新版本 ${t}`, updateTo: (t) => `更新到 ${t}`, download: (t) => `下載 ${t}`, check: '檢查更新', checking: '檢查中…',
     latest: '已是最新版', downloading: (p) => (p === null ? '下載新版本中…' : `下載新版本 ${p}%`), failed: '更新失敗，請到下載頁手動更新',
     version: (v) => `版本 ${v}`, startCheck: '啟動時檢查新版本',
+    notice: (t, i) => `新版本 ${t} · 點這裡${i ? '更新' : '下載'}`,
   },
   b3: {
     lowKey: '低調模式', lowKeyTip: '雙擊恢復', terminal: 'Terminalol：偽裝成終端機（雙擊回到一般畫面）', terminalTip: '雙擊回到一般畫面',
@@ -191,6 +194,7 @@ const en: BarStrings = {
     available: (t) => `New version ${t}`, updateTo: (t) => `Update to ${t}`, download: (t) => `Download ${t}`, check: 'Check for updates', checking: 'Checking…',
     latest: 'Up to date', downloading: (p) => (p === null ? 'Downloading the new version…' : `Downloading the new version ${p}%`), failed: 'Update failed; please update from the download page',
     version: (v) => `Version ${v}`, startCheck: 'Check for a new version at start-up',
+    notice: (t, i) => `New version ${t} · click to ${i ? 'update' : 'download'}`,
   },
   b3: {
     lowKey: 'Low-key', lowKeyTip: 'Double-click to restore', terminal: 'Terminalol: look like a terminal (double-click for the bar)', terminalTip: 'Double-click for the bar',

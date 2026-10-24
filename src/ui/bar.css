@@ -108,7 +108,7 @@ body.low #rowA, body.low #rowB, body.low .row-b, body.low #icons, body.low .icon
 .lowrow { display: none; }
 /* Terminalol (2026-10-24): the bar as a terminal pane running a sync job; the game as its log. */
 body.term { --bar-h: 120px; }
-body.term #bar { justify-content: flex-start; padding: 6px 10px; border-radius: 6px; animation: none; box-shadow: none; opacity: 1;
+body.term #bar { justify-content: flex-start; padding: 6px 10px; border-radius: 6px; animation: none; box-shadow: none; opacity: 1; transition: none;
   background: #0c0c0c; border: 1px solid #2b2b2b; color: #c8c8c8; font: 11.5px/17px Consolas, "Cascadia Mono", Menlo, "Noto Sans Mono CJK TC", monospace; }
 body.term #rowA, body.term #rowB, body.term .row-b, body.term #icons, body.term .icons, body.term .dotrow, body.term .lowrow, body.term #grip, body.term #pop { display: none !important; }
 .termrow { display: none; }
@@ -130,3 +130,9 @@ body.low .lowrow { display: block; height: 22px; line-height: 22px; font: 12px v
 .termrow .head { color: #8a8a8a; }
 .termrow .dim2 { opacity: 0.55; }
 .termrow .prompt .r { float: right; color: #e6e6e6; }
+
+/* A new version (0.1.7): the second line as a button, in the accent colour. */
+.updline { all: unset; cursor: pointer; color: var(--accent); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.updline:hover { text-decoration: underline; }
+.termrow .tl-btn { all: unset; cursor: pointer; color: #d7ba7d; }
+.termrow .tl-btn:hover { text-decoration: underline; }

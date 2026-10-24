@@ -10,6 +10,7 @@
 //   --tab=teams|schedule|series|settings, --team=GEN, --player=GEN:Canyon   open the data window there
 //   --match=<matchId>|next   with --tab=schedule: that match picked (both teams, their links)
 //   --anim-log=<file>   every animation's start, end and cancel (bar and notices) into that file in the config folder
+//   --fake-update=v9.9.9   act as if that version were out (the update notice, without asking GitHub)
 //   --press=hide|lowkey[:seconds],...   run what a hotkey runs, at those seconds after start (else one every 3 s; no keys sent)
 //   --notify-state=busy|d3d|presentation|quiet|app|away|ok[:seconds],...   stand in for Windows' answer
 //   --drag=main|minimap|draftGame|players|data,<x>,<y>[,alt][,held]   move that window there (logical px) and let
@@ -604,6 +605,7 @@ function termCtx(clock: number | null): TermCtx {
   const idle = `${statusRow(clock).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()}${state.status === 'idle' ? `  ${restingLine(clock).html.replace(/<[^>]+>/g, '')}` : ''}`;
   return {
     s: state, clock, log: logList, opts: o, code: codeOf(state), idleText: idle, S: STRINGS[o.zh ? 'zh-Hant' : 'en'], B,
+    update: newer ? { from: appVersion, to: newer.tag.replace(/^v/, '') } : null,
     starters: (code) => {
       const t = roster?.[code];
       if (!t) return [];
@@ -667,6 +669,9 @@ function render(): void {
   if (note && now < note.until) swapLine(lineHtml({ text: note.text, at: null, team: null }), null, true);
   // A new version downloading (or why it failed).
   else if (updateNote) swapLine(lineHtml({ text: updateNote, at: null, team: null }), null, true);
+  // A new version is out and no game is on: say so where it is seen, one click away (0.1.7; the ⬆ in the
+  // icon row shows only under the mouse, and the maintainer missed it updating from 0.1.1).
+  else if (newer && state.status !== 'in_game') swapLine(`<button class="updline" data-action="update">⬆ ${esc(B.upd.notice(newer.tag, !!newer.update))}</button>`, null, true);
   // The official feed is down mid-game (2026-10-19, Day 4 game 1): say so instead of "picks so far: 0".
   else if (state.feedMissing) swapLine(lineHtml({ text: B.feedDown, at: null, team: null }), null, true);
   // A pause (the feed stopped, the game is still on): say so instead of a clock that stands still.
@@ -862,14 +867,14 @@ async function start(): Promise<void> {
   const q = new URLSearchParams(location.search);
   if (inTauri) {
     for (const a of await invoke<string[]>('launch_args').catch(() => [] as string[])) {
-      const m = /^--(set|sample|open|tab|team|player|match|press|notify-state|drag|inject|click|anim-log|scroll)=(.+)$/.exec(a);
+      const m = /^--(set|sample|open|tab|team|player|match|press|notify-state|drag|inject|click|anim-log|scroll|fake-update)=(.+)$/.exec(a);
       if (m) q.set(m[1]!, m[2]!);
       for (const flag of ['sample', 'demo', 'no-tray', 'devlog', 'pause']) if (a === `--${flag}`) q.set(flag, '1');
     }
   }
   flags.sample = q.has('sample');
   flags.demo = q.has('demo');
-  const checking = ['sample', 'demo', 'set', 'open', 'tab', 'team', 'player', 'match', 'anim-log', 'press', 'notify-state', 'no-tray', 'drag', 'inject', 'click', 'devlog', 'pause', 'scroll'].some((k) => q.has(k));
+  const checking = ['sample', 'demo', 'set', 'open', 'tab', 'team', 'player', 'match', 'anim-log', 'press', 'notify-state', 'no-tray', 'drag', 'inject', 'click', 'devlog', 'pause', 'scroll', 'fake-update'].some((k) => q.has(k));
   settings = await SettingsStore.open(backend, () => DEFAULTS);
   settings.persist = !checking;
   for (const pair of (q.get('set') ?? '').split(',').filter(Boolean)) {
@@ -897,6 +902,7 @@ async function start(): Promise<void> {
   if (player) { const [t, p] = player.split(/[|:]/) as [string, string]; profile = { team: t, player: p }; }
   else if (team) profile = { team, player: null };
   if (q.has('anim-log') && inTauri) startAnimLog(q.get('anim-log')!);
+  if (q.has('fake-update')) newer = { tag: q.get('fake-update')! };
   if (inTauri) appVersion = await getVersion().catch(() => appVersion);
   // One question to GitHub per launch, after the game has had time to load (setting updateCheck).
   if (inTauri && cfg().updateCheck && !checking) setTimeout(() => { if (updateAsk === 'idle' && !newer) askNewer(); }, 20_000);

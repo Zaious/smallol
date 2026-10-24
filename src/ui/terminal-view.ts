@@ -26,6 +26,8 @@ export interface TermCtx {
   starters: (code: string) => string[];
   /** The bar's own status line, as text, for when no game is on. */
   idleText: string;
+  /** A newer version: an npm-style notice line, a button that updates (Terminalol has no icon row). */
+  update?: { from: string; to: string } | null;
   /** Strings in the terminal's language. */
   S: Strings;
   B: BarStrings;
@@ -116,6 +118,7 @@ export function terminalView(c: TermCtx): { html: string; lines: number; wide: b
     if (nb && c.clock !== null && s.pitNext !== 'grubs' && s.pitNext !== 'herald') next.push(`${c.S.ui.baron} ${nb.at > c.clock ? fmtClock(nb.at - c.clock) : c.B.up}`);
     st = `Δ ${lead}${next.length ? `  ${next.join('  ')}` : ''}${opts.players ? '' : `  ${right}`}`;
   } else st = c.idleText;
+  if (c.update) out.push(`<div class="tl"><button class="tl-btn" data-action="update">npm notice New version of smallol available! ${esc(c.update.from)} -&gt; ${esc(c.update.to)}</button></div>`);
   out.push(`<div class="tl status">» ${esc(st)}<i class="cur"></i></div>`);
   return { html: out.join(''), lines: out.length, wide };
 }
