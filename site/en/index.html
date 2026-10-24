@@ -38,7 +38,7 @@
   "url": "https://smallol.chroniclecore.com/en/",
   "image": "https://smallol.chroniclecore.com/media/og-en.png",
   "screenshot": ["https://smallol.chroniclecore.com/media/app-bar-en.png", "https://smallol.chroniclecore.com/media/app-notices-en.png", "https://smallol.chroniclecore.com/media/app-minimap-en.png"],
-  "featureList": ["Live score, game clock and gold lead", "Drake, Baron and Herald timers", "Corner notices for the big moments", "At work and Watching along presets", "Minimap, draft and players windows", "Schedule, team and player pages", "Low-key mode and hotkeys", "English and Traditional Chinese"],
+  "featureList": ["Live score, game clock and gold lead", "Drake, Baron and Herald timers", "Corner notices for the big moments", "At work and Watching along presets", "Minimap, draft and players windows", "Schedule, team and player pages", "Low-key mode and hotkeys", "Draft records and champion pick and ban rates", "Terminalol terminal look", "English and Traditional Chinese"],
   "isAccessibleForFree": true,
   "downloadUrl": "https://github.com/Zaious/smallol/releases/latest",
   "datePublished": "2026-10-22",
@@ -84,7 +84,7 @@
         <a class="btn primary" href="#download">Download for Windows</a>
         <a class="btn" href="https://github.com/Zaious/smallol">Source code</a>
       </div>
-      <p class="status">Out now for Windows · updated during Worlds 2026</p>
+      <p class="status"><a href="#new">0.1.6: draft records and Terminalol</a> · updated during Worlds 2026</p>
     </div>
     <figure class="hero-shot">
       <div class="desk">
@@ -96,6 +96,28 @@
       </div>
       <figcaption>A work screen with SmalLoL in the corner, drawn from a recorded game (KC vs MVK, game 2).</figcaption>
     </figure>
+  </section>
+
+  <section class="news" id="new">
+    <div class="news-head">
+      <h2>Two updates this round</h2>
+      <p>0.1.6: draft records, and Terminalol, which makes the bar look like a terminal. The installed app tells you about the update; one click installs it.</p>
+    </div>
+    <div class="news-grid">
+      <article>
+        <h3>Draft records</h3>
+        <p>Every game's picks and bans are kept. The data window has a new Champions tab: each champion's presence, picks, bans and win rate at this Worlds. A team's page lists its games one by one, with what it picked, what it banned and whether it won; a player's page lists every champion he has played, with wins and KDA. With spoiler-free on, results and win rates stay hidden.</p>
+        <div class="pair">
+          <img src="media/rec-champs-en.png" width="340" height="420" loading="lazy" alt="The data window's Champions tab: Worlds picks and bans by presence, Nocturne at 90% (3 picks, 24 bans), Vi at 63%.">
+          <img src="media/rec-team-en.png" width="340" height="420" loading="lazy" alt="KC's team page: games this event, the latest on 10/24 in the Swiss stage against AL, blue side, a win, opened to its five picks.">
+        </div>
+      </article>
+      <article>
+        <h3>Terminalol</h3>
+        <p>Someone asked whether it could look like Teams. We made it look like a terminal instead: tick it in the settings and the bar becomes a terminal window running a sync job. Like <code>top</code>, it lists the ten players' champions, levels, K/D/A, CS, gold and health, then the towers, the latest log lines and the next drake and Baron; during the draft, both teams' picks and bans. No cards, no game windows; each part can be switched off; English by default; double-click for the bar.</p>
+        <img class="term-shot" src="media/terminalol.png" width="660" height="286" loading="lazy" alt="Terminalol: a terminal window whose first line runs npm run sync, then the ten players' champions, levels, K/D/A, CS, gold and health bars, then both teams' towers, a log line and the next drake and Baron.">
+      </article>
+    </div>
   </section>
 
   <section class="anatomy">
@@ -162,6 +184,8 @@
       <li><b>Hotkeys.</b>Ctrl+Alt+Shift+H hides every window; Ctrl+Alt+Shift+Q toggles low-key mode.</li>
       <li><b>One click to the stream.</b>Save the stream you watch and cards get a "▶ Watch" button for when something big happens.</li>
       <li><b>Sound if you want it.</b>Cards can play a short tone; off by default.</li>
+      <li><b>Draft records.</b>Every game's picks and bans are kept: the Champions tab for this Worlds' presence and win rates, a team's page game by game.</li>
+      <li><b>Terminalol.</b>Looks like a terminal: players, draft, towers and log in one window that reads like a sync job.</li>
       <li><b>English and Traditional Chinese.</b>Champion and item names as the game shows them.</li>
     </ul>
   </section>
@@ -217,8 +241,35 @@
       <h2>Where the data comes from</h2>
     </div>
     <div class="body">
-      <p>The app reads a match data service every five seconds. The service (<a href="https://github.com/Zaious/smallol-cv">smallol-cv</a>, also open source) combines the official LoL Esports live data (score, gold, kills, objectives, items) with what it reads from the broadcast picture (which tower fell, the draft, the Herald).</p>
+      <p><b>Why the LoL version is harder than the MLB one.</b> Basesmall, the MLB version, uses MLB's complete public data: every pitch, every runner on every base; baseball also goes one pitch at a time. League of Legends' official live data has only numbers such as the score, gold, kills, drakes and Barons. Which tower fell, who banned what during the draft: none of it is in the official data. The fuller live data (where each player is on the map, for one) is licensed commercially to partners. And the game runs in real time, with pauses for technical problems and even remakes.</p>
+      <p><b>So we run computer vision on a cloud server.</b> A server watches the official stream around the clock: one frame a second, read with OpenCV feature and template matching for the towers on the minimap, the champion cards of the draft and the game clock. The clock gives the stream's delay, so the readings line up with the official live data (score, gold, kills, objectives, items) and merge into one document, which the app reads every five seconds. The service is open source too: <a href="https://github.com/Zaious/smallol-cv">smallol-cv</a>.</p>
       <p>By default the app uses the public instance; you can run your own and point the app at it in Settings. Champion and item names come from Riot Games' Data Dragon.</p>
+    </div>
+  </section>
+
+  <section class="since split" id="since">
+    <div class="side">
+      <h2>What we did after launch</h2>
+      <p class="aside">The Windows version came out on 22 October. The first Swiss day was the first real test; we fixed things while watching.</p>
+    </div>
+    <div class="body">
+      <ul class="since-list">
+        <li><b>The official data changed its rules.</b> On the first match day the official live data began refusing requests that were too recent, and nothing came in for a while. Fixed that night; if it changes again, the service adjusts by itself.</li>
+        <li><b>A pause right at the start.</b> The game clock ran six minutes ahead for a while. It now follows the scoreboard clock on the broadcast, so pauses and restarts line up.</li>
+        <li><b>Towers flashing "?", bans vanishing, a pick missing.</b> A tower once named on the minimap now stays named; the bans vanished because the server lacked a package; Ornn and Karma, whose draft cards were hard to read, got their own handling.</li>
+        <li><b>Remakes and chronobreaks.</b> Not seen in a real game yet, but handled and tested on simulated data.</li>
+        <li><b>A steadier server.</b> A stuck process restarts itself; system updates run when no match is on; the data service moved to our own domain.</li>
+        <li><b>The Mac version (experimental).</b> Signed and notarized by Apple; help testing it is welcome.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="feedback split" id="feedback">
+    <div class="side">
+      <h2>Still improving</h2>
+    </div>
+    <div class="body">
+      <p>Every day of Worlds brings something new. Something read wrong, something missing, a feature you want: tell us in <a href="https://github.com/Zaious/smallol/issues">GitHub Issues</a>, or under the posts on PTT and Threads. This round's draft records and Terminalol both came from feedback.</p>
     </div>
   </section>
 

@@ -6,7 +6,9 @@ A quiet desktop bar for the pro match you can't watch.
 
 SmalLoL is an unofficial desktop companion for following live League of Legends esports. A thin bar sits in a corner of your screen with the score, the clock, the gold lead and what is coming next (drake, herald, baron). When something happens, one line tells you, and the bigger moments show up as a small notice in the corner. Enough to know how the game is going at a glance, without the stream.
 
-> **Download:** [smallol.chroniclecore.com](https://smallol.chroniclecore.com/) or [GitHub Releases](https://github.com/Zaious/smallol/releases/latest), for Windows 10 and 11: an installer that updates itself, or a portable zip. Early: built and tested during the 2026 World Championship. Not code-signed yet, so Windows may say "Windows protected your PC" (More info, Run anyway).
+> **Download:** [smallol.chroniclecore.com](https://smallol.chroniclecore.com/) or [GitHub Releases](https://github.com/Zaious/smallol/releases/latest), for Windows 10 and 11: an installer that updates itself, or a portable zip; and an experimental macOS build, signed and notarized. Early: built and tested during the 2026 World Championship. The Windows build is not code-signed yet, so Windows may say "Windows protected your PC" (More info, Run anyway).
+>
+> **New in 0.1.6:** draft records (this Worlds' picks, bans and win rates per champion; each team's games; each player's champions) and Terminalol, which draws the whole thing as a terminal window.
 
 SmalLoL is the League of Legends sibling of [Basesmall](https://github.com/Zaious/basesmall).
 
@@ -18,14 +20,17 @@ SmalLoL is the League of Legends sibling of [Basesmall](https://github.com/Zaiou
 - **My team.** Star a team and its important events move up a step.
 - **History.** Click the bar for every event of the last five games, by game time, filtered by importance or team.
 - **Optional windows**, each placed where you want: the minimap with towers and drakes, this game's draft (picks and bans as they lock in, read from the broadcast), and the players with levels, items and K/D/A. They open by themselves when a match is on and get out of the way when it is not.
-- **Data window:** the schedule, team pages (roster, this event's bans and picks) and player pages, with a spoiler-free switch for results.
+- **Data window:** the schedule, team pages (roster, this event's bans and picks, every game with its picks, bans and result) and player pages (every champion played, with wins and KDA), a Champions tab with this event's presence, picks, bans and win rate per champion, and a spoiler-free switch for results.
+- **Terminalol.** The bar as a terminal window running a sync job, laid out like `top`: the ten players' champions, levels, K/D/A, CS, gold and health, the draft, each team's towers, the latest log lines and the next objectives. Each part can be switched off; English by default; double-click for the bar.
 - **Low-key mode.** A small grey strip of numbers that does not look like sports. It also turns on by itself while you present, play full screen or have Do not disturb on.
 - **Hotkeys:** Ctrl+Alt+Shift+H hides every window, Ctrl+Alt+Shift+Q toggles low-key mode.
 - **Optional card sound**, a link from a card to the stream you watch, edge snapping, English and Traditional Chinese.
 
 ## Where the data comes from
 
-The app reads one JSON document (`state.json`, every five seconds) from a data service. The service, [smallol-cv](https://github.com/Zaious/smallol-cv), combines the official LoL Esports live feed (score, gold, kills, objectives, items) with what it reads from the broadcast picture (which tower fell, the draft, the herald). By default the app reads the public instance of that service; you can point it at your own in **Settings → Data source**.
+The app reads one JSON document (`state.json`, every five seconds) from a data service. The service, [smallol-cv](https://github.com/Zaious/smallol-cv), combines the official LoL Esports live feed (score, gold, kills, objectives, items) with what it reads from the broadcast picture (which tower fell, the draft, the herald). By default the app reads the public instance of that service (`smallol-api.chroniclecore.com`); you can point it at your own in **Settings → Data source**.
+
+Why a broadcast reader at all: unlike MLB, whose public data has every pitch and every runner (what [Basesmall](https://github.com/Zaious/basesmall) uses), League of Legends' official live data has only numbers such as the score, gold, kills, drakes and Barons. Which tower fell and the draft as it happens are not in it; fuller live data is licensed commercially. So the service runs on a cloud server, takes one frame of the official stream a second and reads the minimap, the draft cards and the game clock with OpenCV, then lines that up with the official data.
 
 ## Build from source
 

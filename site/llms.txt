@@ -1,23 +1,27 @@
 # SmalLoL
 
-> SmalLoL is a free, open-source, unofficial desktop companion for following live League of Legends esports (for example the 2026 World Championship). A thin bar in a corner of the screen shows the score, the game clock, the gold lead, the next objective timers (drakes, Baron, Herald) and the latest play; the big moments appear as small notices in the corner. It is a fan project, not endorsed by Riot Games. Windows 10 and 11; version 0.1.0 came out on 2026-10-22 (installer that updates itself, and a portable zip).
+> SmalLoL is a free, open-source, unofficial desktop companion for following live League of Legends esports (for example the 2026 World Championship). A thin bar in a corner of the screen shows the score, the game clock, the gold lead, the next objective timers (drakes, Baron, Herald) and the latest play; the big moments appear as small notices in the corner. It is a fan project, not endorsed by Riot Games. Windows 10 and 11 (installer that updates itself, and a portable zip), and an experimental notarized macOS build; first released on 2026-10-22, version 0.1.6 on 2026-10-24.
 
 - Free, no ads, nothing to pay for. Apache License 2.0. Made by Zaious at ChronicleCore Studio.
 - No account, no analytics. The app reads one JSON document every five seconds from a match data service (smallol-cv, open source), which combines the official LoL Esports live data with what it reads from the broadcast picture. Users can run their own instance.
 - Two presets: "At work" (not watching) and "Watching along" (the stream is on), or each event set by hand.
 - Optional minimap, draft and players windows that open by themselves during a match.
 - Schedule, team and player pages, a spoiler-free switch, a history of the last five games' events.
+- Draft records (0.1.6): every game's picks and bans kept; a Champions tab with this Worlds' presence, picks, bans and win rate per champion; each team's games and each player's champions.
+- Terminalol (0.1.6): the bar drawn as a terminal window running a sync job, laid out like top (players' champions, levels, K/D/A, CS, gold, health; the draft; towers; log lines).
+- How the data is made: the official live data lacks tower positions and the draft as it happens (fuller data is licensed commercially), so the data service watches the official stream on a cloud server and reads the minimap, draft cards and game clock with OpenCV, then merges that with the official live data.
 - Low-key mode (also automatic while presenting, in full screen or with Do not disturb), hotkeys to hide everything.
 - Traditional Chinese and English.
 - Not faster than the stream: the data arrives a little after the broadcast.
 
 ## Pages
 
-- [SmalLoL 繁體中文](https://smallol.chroniclecore.com/): 介紹、下載、Mac 版消息登記、常見問題
-- [SmalLoL English](https://smallol.chroniclecore.com/en/): what it does, download, Mac version waitlist, questions
+- [SmalLoL 繁體中文](https://smallol.chroniclecore.com/): 介紹、0.1.6 更新（BP 紀錄、Terminalol）、推出後做了什麼、資料從哪裡來、下載、常見問題
+- [SmalLoL English](https://smallol.chroniclecore.com/en/): what it does, the 0.1.6 updates (draft records, Terminalol), what changed since launch, where the data comes from, download, questions
 
 ## Source
 
 - [App source code](https://github.com/Zaious/smallol)
 - [Data service source code](https://github.com/Zaious/smallol-cv)
-- [Releases](https://github.com/Zaious/smallol/releases): the Windows installer and portable zip
+- [Releases](https://github.com/Zaious/smallol/releases): the Windows installer and portable zip, the macOS disk image
+- [Feedback](https://github.com/Zaious/smallol/issues)

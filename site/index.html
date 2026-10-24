@@ -38,7 +38,7 @@
   "url": "https://smallol.chroniclecore.com/",
   "image": "https://smallol.chroniclecore.com/media/og.png",
   "screenshot": ["https://smallol.chroniclecore.com/media/app-bar-zh.png", "https://smallol.chroniclecore.com/media/app-notices-zh.png", "https://smallol.chroniclecore.com/media/app-minimap-zh.png"],
-  "featureList": ["即時比分、比賽時間與經濟差", "小龍、巴龍、預示者倒數", "大事件的角落通知", "上班與陪看兩種預設", "小地圖、本局 BP、選手視窗", "賽程、隊伍與選手頁", "低調模式與快速鍵", "繁體中文與英文"],
+  "featureList": ["即時比分、比賽時間與經濟差", "小龍、巴龍、預示者倒數", "大事件的角落通知", "上班與陪看兩種預設", "小地圖、本局 BP、選手視窗", "賽程、隊伍與選手頁", "低調模式與快速鍵", "BP 紀錄與英雄選禁率", "Terminalol 終端機偽裝模式", "繁體中文與英文"],
   "isAccessibleForFree": true,
   "downloadUrl": "https://github.com/Zaious/smallol/releases/latest",
   "datePublished": "2026-10-22",
@@ -84,7 +84,7 @@
         <a class="btn primary" href="#download">下載 Windows 版</a>
         <a class="btn" href="https://github.com/Zaious/smallol">原始碼</a>
       </div>
-      <p class="status">Windows 版已推出 · 2026 世界賽期間持續更新</p>
+      <p class="status"><a href="#new">0.1.6：BP 紀錄與 Terminalol 模式</a> · 2026 世界賽期間持續更新</p>
     </div>
     <figure class="hero-shot">
       <div class="desk">
@@ -96,6 +96,28 @@
       </div>
       <figcaption>上班的畫面，角落開著 SmalLoL。用一場錄下來的比賽資料（KC 對 MVK 第二局）畫出來。</figcaption>
     </figure>
+  </section>
+
+  <section class="news" id="new">
+    <div class="news-head">
+      <h2>這一輪的兩個更新</h2>
+      <p>0.1.6：BP 紀錄，和偽裝成終端機的 Terminalol。安裝版會在程式裡提示更新，按一下就好。</p>
+    </div>
+    <div class="news-grid">
+      <article>
+        <h3>BP 紀錄</h3>
+        <p>每一局的禁選都會存下來。資料視窗多了「英雄」分頁：這屆世界賽每隻英雄的出場率、選用、禁用和勝率。隊伍頁可以一局一局看這隊選了什麼、禁了什麼、贏還是輸；選手頁列出他用過的每隻英雄、勝負和 KDA。開著「不爆雷」時，勝負和勝率會藏起來。</p>
+        <div class="pair">
+          <img src="media/rec-champs-zh.png" width="340" height="420" loading="lazy" alt="資料視窗的英雄分頁：世界賽選禁，依出場率排列，夜曲 90%（選 3、禁 24），菲艾 63%。">
+          <img src="media/rec-team-zh.png" width="340" height="420" loading="lazy" alt="KC 的隊伍頁：本屆每局，最新一局是 10/24 瑞士輪對 AL，藍方，勝，展開看五個選角。">
+        </div>
+      </article>
+      <article>
+        <h3>Terminalol 模式</h3>
+        <p>有人問能不能偽裝成 Teams。我們做了偽裝成終端機：設定裡打勾，橫條就變成一個「正在同步」的終端機視窗。像 <code>top</code> 一樣列出十位選手的英雄、等級、K/D/A、補刀、經濟和血量，下面是塔況、最近的紀錄，以及下一條龍和巴龍的倒數；BP 時列出兩隊的選角和禁用。不跳卡片、比賽視窗不開；每一區可以分別開關，預設英文；雙擊回到一般畫面。</p>
+        <img class="term-shot" src="media/terminalol.png" width="660" height="286" loading="lazy" alt="Terminalol：終端機視窗，第一行是 npm run sync，接著十位選手的英雄、等級、K/D/A、補刀、經濟和血量條，下面是兩隊的塔況、一行紀錄和下一條龍與巴龍的倒數。">
+      </article>
+    </div>
   </section>
 
   <section class="anatomy">
@@ -162,6 +184,8 @@
       <li><b>快速鍵。</b>Ctrl+Alt+Shift+H 藏起所有視窗，Ctrl+Alt+Shift+Q 切換低調模式。</li>
       <li><b>一鍵去看直播。</b>存好你常看的直播網址，卡片上就有「▶ 看」，大事發生時點過去就好。</li>
       <li><b>聲音可有可無。</b>卡片可以配一個短提示音，預設關閉。</li>
+      <li><b>BP 紀錄。</b>每一局的禁選都存下來；英雄分頁看這屆的出場率和勝率，隊伍頁一局一局看。</li>
+      <li><b>Terminalol。</b>偽裝成終端機：選手、BP、塔況和紀錄都在一個視窗裡，看起來像在跑同步。</li>
       <li><b>繁體中文與英文。</b>英雄和裝備用官方中文名稱。</li>
     </ul>
   </section>
@@ -217,8 +241,35 @@
       <h2>資料從哪裡來</h2>
     </div>
     <div class="body">
-      <p>程式每五秒向一個比賽資料服務讀一次。這個服務（<a href="https://github.com/Zaious/smallol-cv">smallol-cv</a>，也是開源的）把 LoL Esports 官方的直播資料（比分、經濟、擊殺、目標、裝備）和從轉播畫面讀到的資訊（哪座塔倒了、BP、預示者）合在一起。</p>
+      <p><b>為什麼英雄聯盟版比 MLB 版難。</b>MLB 版 Basesmall 用的是 MLB 官方完整公開的數據：每一球、每位跑者在哪個壘，都有；棒球也比較像回合制，一球一球來。英雄聯盟的官方即時數據只有比分、經濟、擊殺、龍和巴龍這些數字，哪一座塔倒了、BP 進行中誰禁了誰，官方資料裡都沒有；更完整的即時數據（例如選手在地圖上的位置）是透過商業授權提供給合作夥伴的。比賽也是即時進行，還會暫停維修，甚至整局重來。</p>
+      <p><b>所以我們在雲端主機上跑電腦視覺。</b>一台伺服器 24 小時盯著官方直播：每秒抽一張轉播畫面，用 OpenCV 的特徵比對和模板比對，讀小地圖上的塔、BP 的英雄卡和比賽計時器；再用計時器量出直播的延遲，和官方即時數據（比分、經濟、擊殺、目標、裝備）對齊、合併，整理成一份資料。程式每五秒讀一次。這個服務也是開源的：<a href="https://github.com/Zaious/smallol-cv">smallol-cv</a>。</p>
       <p>預設使用公開的那一台；你也可以自己架一台，在設定裡改成你的位址。英雄和裝備的名稱來自 Riot Games 的 Data Dragon。</p>
+    </div>
+  </section>
+
+  <section class="since split" id="since">
+    <div class="side">
+      <h2>推出之後，我們做了什麼</h2>
+      <p class="aside">10/22 推出 Windows 版。10/24 凌晨瑞士輪第一天，是第一個真正的考驗，我們邊看比賽邊修。</p>
+    </div>
+    <div class="body">
+      <ul class="since-list">
+        <li><b>官方數據臨時改規則。</b>開賽當天，官方即時數據開始拒絕太新的請求，資料一度完全進不來。當晚改好；之後再改，程式也會自己照著調整。</li>
+        <li><b>開局就暫停維修。</b>比賽時間一度多算了 6 分鐘。現在改成跟著轉播畫面上的計分列時鐘走，暫停、重新開始都對得上。</li>
+        <li><b>塔況閃「?」、禁用不見、BP 少一隻。</b>小地圖上確認過的塔名現在會固定下來；開打後禁用消失是伺服器少裝了一個套件；鄂爾、卡瑪這幾隻英雄的 BP 卡另外加了辨識。</li>
+        <li><b>整局重來、時光倒流。</b>還沒在正式比賽遇到，但先做了處理，並用模擬資料測過。</li>
+        <li><b>伺服器更穩。</b>程式卡住會自己重啟；系統更新排在沒有比賽的時段；資料網址換成我們自己的網域。</li>
+        <li><b>Mac 版（實驗）。</b>有 Apple 簽章和公證，歡迎幫忙試。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="feedback split" id="feedback">
+    <div class="side">
+      <h2>還在持續改</h2>
+    </div>
+    <div class="body">
+      <p>世界賽每天都有新狀況。讀錯的、漏掉的、想要的功能，都歡迎告訴我們：到 <a href="https://github.com/Zaious/smallol/issues">GitHub Issues</a> 開一則，或在 PTT、Threads 的介紹文底下留言。這一輪的 BP 紀錄和 Terminalol，都是從大家的回饋來的。</p>
     </div>
   </section>
 

@@ -96,6 +96,23 @@ dd { margin: 0; color: var(--muted); }
 .wins figcaption { margin: 0; font-size: 15px; }
 .wins figcaption b { display: block; color: var(--text); font-size: 16px; }
 
+/* This round's updates (0.1.6): two articles side by side, each with its pictures. */
+.news { padding: 72px 0; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+.news-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px 64px; align-items: end; }
+.news-head p { color: var(--muted); }
+.news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.news article { display: grid; gap: 14px; }
+.news h3 { margin: 0; font-size: 22px; }
+.news article p { margin: 0; color: var(--muted); }
+.news code { font: 15px var(--mono); }
+.news .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.news img { display: block; width: 100%; filter: drop-shadow(0 10px 24px rgb(0 0 0 / .22)); }
+.news .term-shot { border-radius: 8px; }
+.since, .feedback { padding: 64px 0; border-top: 1px solid var(--line); }
+.since-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.since-list li { color: var(--muted); }
+.since-list b { color: var(--text); }
+
 /* Features: a two-column list on a panel, no cards. */
 .features { padding: 72px 0; border-top: 1px solid var(--line); }
 .features h2 { margin-bottom: 32px; }
@@ -170,7 +187,8 @@ footer .fine { font-size: 13px; }
   .hero { padding: 24px 0 56px; }
   .anatomy, .notices-sec, .windows, .features { padding: 56px 0; }
   .notices-shot { justify-self: center; }
-  .windows-head { grid-template-columns: 1fr; }
+  .windows-head, .news-head, .news-grid { grid-template-columns: 1fr; }
+  .news { padding: 56px 0; }
   .wins { grid-template-columns: 1fr 1fr; }
   .wins figure:first-child { grid-column: 1 / -1; max-width: 300px; }
   .features ul { grid-template-columns: 1fr; padding: 24px; }
