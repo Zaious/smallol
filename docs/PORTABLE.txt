@@ -15,7 +15,7 @@ Settings are kept in %APPDATA%\io.github.zaious.smallol\, and the web view's cac
 %LOCALAPPDATA%\io.github.zaious.smallol\. Delete those two folders and this one to remove
 every trace.
 
-SmalLoL reads match data from its data service (smallol.161.97.96.65.sslip.io by default; you can
+SmalLoL reads match data from its data service (smallol-api.chroniclecore.com by default; you can
 change it in Settings) and, once after start-up (you can switch it off in Settings),
 api.github.com (to tell you about a newer version). It collects nothing.
 This portable copy never updates itself: for a new version, download the new zip.

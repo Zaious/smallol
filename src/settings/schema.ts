@@ -2,7 +2,7 @@
 // broken, old and hand-edited files. The file lives in the app config dir as settings.json.
 // Copied from Basesmall's schema; the fields are SmalLoL's own.
 
-import { DEFAULT_ENDPOINT } from '../data/streamcv/source.ts';
+import { DEFAULT_ENDPOINT, LEGACY_ENDPOINT } from '../data/streamcv/source.ts';
 
 export const SETTINGS_VERSION = 1;
 
@@ -177,7 +177,8 @@ export function normalize(raw: unknown): Settings {
     version: SETTINGS_VERSION,
     language: oneOf(o.language, ['auto', 'zh-Hant', 'en'], d.language),
     background: oneOf(o.background, ['solid', 'semi', 'clear'], d.background),
-    endpoint: validEndpoint(o.endpoint) ? o.endpoint : d.endpoint,
+    // The old default saved by 0.1.0–0.1.3 is the default, not a choice: it moves to the new address.
+    endpoint: validEndpoint(o.endpoint) && o.endpoint !== LEGACY_ENDPOINT ? o.endpoint : d.endpoint,
     show: Object.fromEntries(FEATURES.map((f) => [f, bool(show[f], d.show[f])])) as Record<Feature, boolean>,
     gold: oneOf(o.gold, ['diff', 'totals'], d.gold),
     tickClock: bool(o.tickClock, d.tickClock),

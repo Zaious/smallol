@@ -6,7 +6,13 @@
 import { adapt } from './adapter.ts';
 import type { MatchState } from '../../model/types.ts';
 
-export const DEFAULT_ENDPOINT = 'https://smallol.161.97.96.65.sslip.io/state.json';
+/** The public service, on the maintainer's own domain (2026-10-24). */
+export const DEFAULT_ENDPOINT = 'https://smallol-api.chroniclecore.com/state.json';
+/**
+ * The same service's first address (0.1.0–0.1.3), through the free sslip.io name service. Still served:
+ * copies that have not updated use it, and this version falls back to it when the new address fails.
+ */
+export const LEGACY_ENDPOINT = 'https://smallol.161.97.96.65.sslip.io/state.json';
 export const INTERVAL_MS = 5000;
 const TIMEOUT_MS = 4000;
 const MAX_BACKOFF_MS = 60_000;

@@ -16,7 +16,7 @@ describe('settings schema', () => {
   it('turns every feature on and reads the public service by default', () => {
     expect(Object.keys(DEFAULTS.show)).toEqual([...FEATURES]);
     expect(Object.values(DEFAULTS.show).every(Boolean)).toBe(true);
-    expect(DEFAULTS.endpoint).toBe('https://smallol.161.97.96.65.sslip.io/state.json');
+    expect(DEFAULTS.endpoint).toBe('https://smallol-api.chroniclecore.com/state.json');
     expect(DEFAULTS.views).toEqual({ draftGame: false, draftSeries: false, players: false, schedule: false });
   });
 
@@ -68,5 +68,12 @@ describe('settings store', () => {
     expect(store.current).toEqual(DEFAULTS);
     const ok = await SettingsStore.open(memory('﻿{"language":"en"}').backend, () => DEFAULTS);
     expect(ok.current.language).toBe('en');
+  });
+});
+
+describe('the service address moved (0.1.4)', () => {
+  it('the old default saved by 0.1.0-0.1.3 becomes the new default; a user\'s own address stays', () => {
+    expect(normalize({ endpoint: 'https://smallol.161.97.96.65.sslip.io/state.json' }).endpoint).toBe('https://smallol-api.chroniclecore.com/state.json');
+    expect(normalize({ endpoint: 'http://127.0.0.1:8787/state.json' }).endpoint).toBe('http://127.0.0.1:8787/state.json');
   });
 });

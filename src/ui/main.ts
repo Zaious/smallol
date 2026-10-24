@@ -25,7 +25,7 @@ import { LogicalPosition, LogicalSize, PhysicalPosition } from '@tauri-apps/api/
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { emitTo, listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-import { Poller, StateSource, type Connection } from '../data/streamcv/source.ts';
+import { DEFAULT_ENDPOINT, LEGACY_ENDPOINT, Poller, StateSource, type Connection } from '../data/streamcv/source.ts';
 import { adaptSchedule, nextMatch, scheduleUrl } from '../data/streamcv/schedule.ts';
 import { adaptPlayers, adaptTeams, historyUrl } from '../data/streamcv/history.ts';
 import type { History } from '../model/history.ts';
@@ -332,8 +332,28 @@ const source = new StateSource(DEFAULTS.endpoint, {
     sendPanels();
     render();
   },
-  onConnection(c) { conn = c; render(); },
+  onConnection(c, failures) { conn = c; render(); fallBack(failures); },
 });
+
+/**
+ * The address in use. The default one can fail on its own (a new domain, its certificate): after three
+ * failures in a row the app tries the old address for this run, and back again if that fails too.
+ * A user's own address is never swapped.
+ */
+let onLegacy = false;
+const endpointNow = () => (cfg().endpoint === DEFAULT_ENDPOINT && onLegacy ? LEGACY_ENDPOINT : cfg().endpoint);
+function useEndpoint(url: string): void {
+  if (!flags.sample) source.setUrl(url);
+  schedulePoller.setUrl(scheduleUrl(url));
+  teamsPoller.setUrl(historyUrl(url, 'teams'));
+  playersPoller.setUrl(historyUrl(url, 'players'));
+  rosterPoller.setUrl(rosterUrl(url));
+}
+function fallBack(failures: number): void {
+  if (cfg().endpoint !== DEFAULT_ENDPOINT || failures < 3 || failures % 3 !== 0) return;
+  onLegacy = !onLegacy;
+  useEndpoint(endpointNow());
+}
 /**
  * The game's windows open only when there is something in them (2026-10-18 request): no match, none;
  * during the draft, this game's draft; in the game and after it, every one the user ticked. A tick means
@@ -777,12 +797,10 @@ if (win) {
 function onSettings(now: Settings, before: Settings): void {
   if (now.language !== before.language) applyLanguage();
   if (now.background !== before.background) applyBackground();
-  if (now.endpoint !== before.endpoint && !flags.sample) { haveLive = false; haveSeen = false; source.setUrl(now.endpoint); }
   if (now.endpoint !== before.endpoint) {
-    schedulePoller.setUrl(scheduleUrl(now.endpoint));
-    teamsPoller.setUrl(historyUrl(now.endpoint, 'teams'));
-    playersPoller.setUrl(historyUrl(now.endpoint, 'players'));
-    rosterPoller.setUrl(rosterUrl(now.endpoint));
+    if (!flags.sample) { haveLive = false; haveSeen = false; }
+    onLegacy = false;
+    useEndpoint(endpointNow());
   }
   if (now.barTier !== before.barTier) void fitWindow();
   if (now.hotkeys !== before.hotkeys) void applyHotkeys();
@@ -823,11 +841,9 @@ async function start(): Promise<void> {
   applyLanguage();
   applyBackground();
   if (flags.sample) void loadSample();
-  else { source.setUrl(cfg().endpoint); source.start(); }
-  for (const [p, u] of [[schedulePoller, scheduleUrl(cfg().endpoint)], [teamsPoller, historyUrl(cfg().endpoint, 'teams')], [playersPoller, historyUrl(cfg().endpoint, 'players')], [rosterPoller, rosterUrl(cfg().endpoint)]] as const) {
-    (p as Poller<unknown>).setUrl(u);
-    (p as Poller<unknown>).start();
-  }
+  useEndpoint(endpointNow());
+  if (!flags.sample) source.start();
+  for (const p of [schedulePoller, teamsPoller, playersPoller, rosterPoller] as Poller<unknown>[]) p.start();
   await fitWindow();
   render();
   void panels?.sync(shownPanels());

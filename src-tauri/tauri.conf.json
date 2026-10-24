@@ -29,7 +29,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:* https://smallol.161.97.96.65.sslip.io https://api.github.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost http://127.0.0.1:* http://localhost:* https://smallol-api.chroniclecore.com https://smallol.161.97.96.65.sslip.io https://api.github.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
     }
   },
   "bundle": {
