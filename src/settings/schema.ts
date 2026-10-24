@@ -82,6 +82,8 @@ export interface Settings {
   /** Low-key, turned on by hand: a small grey strip of numbers, no notices (batch 3 §2). Turned on by
    * presentation detection it is not saved. */
   lowKey: boolean;
+  /** Terminalol: the bar drawn as a terminal window running a sync job, the game as its log lines. */
+  terminal: boolean;
   /** The two global hotkeys (hide everything, low-key). */
   hotkeys: boolean;
   /** Go low-key by itself while Windows says not to disturb (full screen, presenting, quiet hours). */
@@ -119,6 +121,7 @@ export const DEFAULTS: Settings = {
   milestones: 'all',
   myTeam: null,
   lowKey: false,
+  terminal: false,
   hotkeys: true,
   autoLowKey: true,
   cardSound: false,
@@ -197,6 +200,7 @@ export function normalize(raw: unknown): Settings {
     milestones: oneOf(o.milestones, ['all', 'mine'], d.milestones),
     myTeam: typeof o.myTeam === 'string' && /^[A-Za-z0-9]{2,5}$/.test(o.myTeam) ? o.myTeam : null,
     lowKey: bool(o.lowKey, d.lowKey),
+    terminal: bool(o.terminal, d.terminal),
     hotkeys: bool(o.hotkeys, d.hotkeys),
     autoLowKey: bool(o.autoLowKey, d.autoLowKey),
     cardSound: bool(o.cardSound, d.cardSound),

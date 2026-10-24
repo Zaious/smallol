@@ -106,4 +106,18 @@ body.low { --bar-h: 24px; }
 body.low #bar { padding: 0 10px; border-radius: 6px; animation: none; box-shadow: none; opacity: 1; background: #171717; border: 1px solid #2e2e2e; }
 body.low #rowA, body.low #rowB, body.low .row-b, body.low #icons, body.low .icons, body.low .dotrow, body.low #grip, body.low #pop { display: none !important; }
 .lowrow { display: none; }
+/* Terminalol (2026-10-24): the bar as a terminal pane running a sync job; the game as its log. */
+body.term { --bar-h: 120px; }
+body.term #bar { justify-content: flex-start; padding: 6px 10px; border-radius: 6px; animation: none; box-shadow: none; opacity: 1;
+  background: #0c0c0c; border: 1px solid #2b2b2b; color: #c8c8c8; font: 11.5px/17px Consolas, "Cascadia Mono", Menlo, "Noto Sans Mono CJK TC", monospace; }
+body.term #rowA, body.term #rowB, body.term .row-b, body.term #icons, body.term .icons, body.term .dotrow, body.term .lowrow, body.term #grip, body.term #pop { display: none !important; }
+.termrow { display: none; }
+body.term .termrow { display: block; }
+.termrow .tl { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.termrow .prompt { color: #8a8a8a; }
+.termrow .warn { color: #d7ba7d; }
+.termrow .dim { opacity: 0; }
+.termrow .status { color: #e6e6e6; }
+.termrow .cur { display: inline-block; width: 7px; height: 13px; margin-left: 2px; vertical-align: -2px; background: #c8c8c8; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 body.low .lowrow { display: block; height: 22px; line-height: 22px; font: 12px var(--mono); color: #a3a3a3; white-space: nowrap; overflow: hidden; }

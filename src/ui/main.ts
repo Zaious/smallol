@@ -121,7 +121,9 @@ const tier = () => cfg().barTier;
 const barWidth = () => cfg().sizes[`size-${tier()}`]?.w ?? BAR_SIZE[tier()].w;
 /** Low-key (batch 3 §2): one grey line of numbers, 150×24, top-left where the bar was. Never saved as the bar's size. */
 const LOW_SIZE: Size = { w: 150, h: 24 };
-const winWidth = () => (lowKeyOn() ? LOW_SIZE.w : barWidth());
+/** Terminalol (2026-10-24): the bar as a terminal pane, six lines high. Never saved as the bar's size. */
+const TERM_SIZE: Size = { w: 470, h: 120 };
+const winWidth = () => (lowKeyOn() ? LOW_SIZE.w : termOn() ? TERM_SIZE.w : barWidth());
 type Pop = null | 'mode' | 'panels' | 'ask' | 'history';
 let popKind: Pop = null;
 let popH = 0;
@@ -136,7 +138,7 @@ async function resizeTo(w: number, h: number): Promise<void> {
   await win.setSize(new LogicalSize(w, h)).catch(() => undefined);
   setTimeout(() => { resizingTo = false; }, 300);
 }
-const wantedHeight = () => (lowKeyOn() ? LOW_SIZE.h : BAR_SIZE[tier()].h + (popKind ? popH + 4 : 0));
+const wantedHeight = () => (lowKeyOn() ? LOW_SIZE.h : termOn() ? TERM_SIZE.h : BAR_SIZE[tier()].h + (popKind ? popH + 4 : 0));
 async function fitWindow(): Promise<void> { await resizeTo(winWidth(), wantedHeight()); }
 /** Position and size together (src-tauri set_bounds): two calls made the bar flicker as a popover opened upward. */
 async function setBounds(x: number, y: number, h: number): Promise<void> {
@@ -156,7 +158,7 @@ window.addEventListener('resize', () => {
   if (!win || resizingTo) return;
   // Only the width is the user's: the bar's height is fixed (UI_SPEC §1).
   if (Math.abs(window.innerHeight - wantedHeight()) > 1) void resizeTo(window.innerWidth, wantedHeight());
-  if (popKind || lowKeyOn()) return;
+  if (popKind || lowKeyOn() || termOn()) return;
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     const [lo, hi] = WIDTH_RANGE[tier()];
@@ -224,10 +226,12 @@ const paused = () => Date.now() < pausedUntil;
 /** Low-key turned on by presentation detection (never saved); by hand it is the lowKey setting. */
 const auto = new AutoLow();
 const lowKeyOn = () => cfg().lowKey || auto.on;
+/** Terminalol on (low-key, when on too, wins: it is smaller still). */
+const termOn = () => cfg().terminal && !lowKeyOn();
 /** Every window put away by the hide hotkey (never saved: each start shows them). */
 let hiddenByKey = false;
 /** No cards, strips or sounds: paused, low-key, or hidden. The log line and the history go on. */
-const quiet = () => paused() || lowKeyOn() || hiddenByKey;
+const quiet = () => paused() || lowKeyOn() || termOn() || hiddenByKey;
 
 /** The log history (UI_SPEC §5): the last five games, saved to log-history.json. */
 let logList: LogEntry[] = [];
@@ -588,6 +592,37 @@ function lowText(clock: number | null): string {
   return '—';
 }
 
+/**
+ * Terminalol: a prompt, the last four lines of the log as a job's output, and a status line with the
+ * score, the clock, the gold lead and the next objective. Plain text in a terminal's colours: nothing
+ * that reads as sport at a glance but the words themselves.
+ */
+function termHtml(clock: number | null): string {
+  const s = state;
+  const out: string[] = [`<div class="tl prompt">~/work/sync $ npm run sync -- --watch</div>`];
+  const lines = logList.slice(-4);
+  for (const e of lines) {
+    const when = e.at === null ? new Date(e.t).toTimeString().slice(0, 8) : fmtClock(e.at).padStart(5, '0');
+    const lvl = e.level === 'major' ? 'warn ' : 'info ';
+    out.push(`<div class="tl${e.level === 'major' ? ' warn' : ''}">[${esc(when)}] ${lvl} ${esc(e.text)}</div>`);
+  }
+  for (let i = lines.length; i < 4; i++) out.push('<div class="tl dim">&nbsp;</div>');
+  const code = codeOf(s);
+  let st: string;
+  if (s.status === 'in_game') {
+    const d = (s.teams.B.gold ?? 0) - (s.teams.R.gold ?? 0);
+    const lead = d === 0 ? '±0' : `${code(d > 0 ? 'B' : 'R')} +${fmtGold(Math.abs(d))}`;
+    const next: string[] = [];
+    const nd = s.nextDragon;
+    if (nd && clock !== null) { const e = nd.elder ? 'elder' : nd.element; next.push(`${e ? S.element[e] : S.ui.dragon} ${nd.at > clock ? fmtClock(nd.at - clock) : B.up}`); }
+    const nb = s.nextBaron;
+    if (nb && clock !== null && s.pitNext !== 'grubs' && s.pitNext !== 'herald') next.push(`${S.ui.baron} ${nb.at > clock ? fmtClock(nb.at - clock) : B.up}`);
+    st = `${code('B')} ${s.teams.B.kills ?? 0}-${s.teams.R.kills ?? 0} ${code('R')}  t=${clock === null ? '--:--' : fmtClock(clock)}  Δ ${lead}${next.length ? `  ${next.join('  ')}` : ''}`;
+  } else st = statusRow(clock).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() + (s.status === 'idle' ? `  ${restingLine(clock).key === 'none' ? '' : restingLine(clock).html.replace(/<[^>]+>/g, '')}` : '');
+  out.push(`<div class="tl status">» ${esc(st)}<i class="cur"></i></div>`);
+  return out.join('');
+}
+
 function render(): void {
   document.body.classList.toggle('dot', tier() === 'dot');
   const clock = clockNow(state, receivedAt, Date.now(), cfg().tickClock);
@@ -600,6 +635,15 @@ function render(): void {
     if (!el) { el = document.createElement('div'); el.className = 'lowrow'; bar.appendChild(el); }
     const text = lowText(clock);
     if (el.textContent !== text) el.textContent = text;
+    return;
+  }
+  document.body.classList.toggle('term', termOn());
+  if (termOn()) {
+    bar.title = B.b3.terminalTip;
+    let el = bar.querySelector<HTMLElement>('.termrow');
+    if (!el) { el = document.createElement('div'); el.className = 'termrow'; bar.appendChild(el); }
+    const html = termHtml(clock);
+    if (el.innerHTML !== html) el.innerHTML = html;
     return;
   }
   if (tier() === 'dot') {
@@ -752,13 +796,13 @@ for (const el of [bar, pop]) el.addEventListener('click', (e) => {
 });
 // The dot: a click on it (not a drag) goes back to the bar.
 bar.addEventListener('click', (e) => {
-  if ((e.target as HTMLElement).closest('button') || moved || lowKeyOn()) return;
+  if ((e.target as HTMLElement).closest('button') || moved || lowKeyOn() || termOn()) return;
   if (tier() === 'dot') settings.update((x) => { x.barTier = 'bar'; });
   else void openPop('history');
 });
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') void closePop(); });
 // Low-key: a double click brings the bar back; a single click or the mouse passing over does nothing.
-bar.addEventListener('dblclick', () => { if (lowKeyOn()) leaveLowKey(); });
+bar.addEventListener('dblclick', () => { if (lowKeyOn()) leaveLowKey(); else if (termOn()) settings.update((d) => { d.terminal = false; }); });
 // And when the user clicks elsewhere (the window loses focus). The first-run question stays until answered.
 /** A checking run opened a popover for a screenshot (--open): keep it while focus moves elsewhere. */
 let keepOpen = false;
@@ -896,12 +940,16 @@ async function start(): Promise<void> {
 }
 // ---------- low-key, hiding, hotkeys, presentation detection (batch 3) ----------
 
-let lowWas = false;
+/** The bar's look last applied: the bar, low-key or Terminalol. */
+let lookWas: 'bar' | 'low' | 'term' = 'bar';
 /** Apply low-key turning on or off: the bar's size and look, the other windows, the notices. */
 function syncLow(): void {
-  const on = lowKeyOn();
-  if (on === lowWas) return;
-  lowWas = on;
+  // Low-key and Terminalol both put the bar in disguise: no popovers, notices or game windows.
+  const look = lowKeyOn() ? 'low' : termOn() ? 'term' : 'bar';
+  if (look === lookWas) return;
+  lookWas = look;
+  const on = look !== 'bar';
+  void win?.setTitle(look === 'term' ? 'Terminal' : 'SmalLoL').catch(() => undefined);
   if (on) { void closePop(); void notifier.clear(); bar.classList.remove('glow', 'lit'); }
   void panels?.setHidden(on || hiddenByKey);
   render();
@@ -928,7 +976,7 @@ function toggleHidden(): void {
   if (!hiddenByKey && noTray && !hotkeyState.hide) { showNote(B.b3.hideRefused); return; }
   hiddenByKey = !hiddenByKey;
   if (hiddenByKey) { void closePop(); void notifier.clear(); void win?.hide(); } else { void win?.show(); render(); }
-  void panels?.setHidden(lowKeyOn() || hiddenByKey);
+  void panels?.setHidden(lowKeyOn() || termOn() || hiddenByKey);
 }
 
 function onHotkey(name: string): void {

@@ -68,6 +68,7 @@ export function settingsView(cfg: Settings, S: Strings, B: BarStrings, endpointE
     <div class="srow">${check('spoilerFree', cfg.spoilerFree, t.spoilerFree)}</div>
     <div class="srow">${check('tickClock', cfg.tickClock, t.tickClock)}</div>
     <div class="srow">${check('lowKey', x.lowNow, b.lowKey)}</div>
+    <div class="srow">${check('terminal', cfg.terminal, b.terminal)}</div>
     <div class="srow">${check('hotkeys', cfg.hotkeys, b.hotkeys)}</div>
     ${cfg.hotkeys ? `<p class="note">${[macKeys(b.hotkeyHide), macKeys(b.hotkeyLow)].map((line) =>
       // A hotkey another program holds says so beside it, in the accent colour (batch 3 closing note).

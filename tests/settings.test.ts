@@ -77,3 +77,11 @@ describe('the service address moved (0.1.4)', () => {
     expect(normalize({ endpoint: 'http://127.0.0.1:8787/state.json' }).endpoint).toBe('http://127.0.0.1:8787/state.json');
   });
 });
+
+describe('Terminalol (0.1.6)', () => {
+  it('off by default; a saved choice is kept', () => {
+    expect(DEFAULTS.terminal).toBe(false);
+    expect(normalize({ terminal: true }).terminal).toBe(true);
+    expect(normalize({ terminal: 'yes' }).terminal).toBe(false);
+  });
+});

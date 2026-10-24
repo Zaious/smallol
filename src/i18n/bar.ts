@@ -64,7 +64,7 @@ export interface BarStrings {
   };
   /** Batch 3: low-key, hotkeys, presentation detection, card sound, stream address. */
   b3: {
-    lowKey: string; lowKeyTip: string; hotkeys: string; hotkeyHide: string; hotkeyLow: string; hotkeyBusy(keys: string): string; hotkeyTaken: string;
+    lowKey: string; lowKeyTip: string; terminal: string; terminalTip: string; hotkeys: string; hotkeyHide: string; hotkeyLow: string; hotkeyBusy(keys: string): string; hotkeyTaken: string;
     autoLow: string; autoLowNote: string; sound: string; volume: Record<'low' | 'mid' | 'high', string>; test: string;
     watchUrl: string; watchNote: string; watchBad: Record<'scheme' | 'credentials' | 'long' | 'bad', string>; watch: string; hideRefused: string; panelLater: string;
   };
@@ -126,7 +126,7 @@ const zh: BarStrings = {
     version: (v) => `版本 ${v}`, startCheck: '啟動時檢查新版本',
   },
   b3: {
-    lowKey: '低調模式', lowKeyTip: '雙擊恢復', hotkeys: '全域熱鍵',
+    lowKey: '低調模式', lowKeyTip: '雙擊恢復', terminal: 'Terminalol：偽裝成終端機（雙擊回到一般畫面）', terminalTip: '雙擊回到一般畫面', hotkeys: '全域熱鍵',
     hotkeyHide: '隱藏全部視窗 Ctrl+Alt+Shift+H', hotkeyLow: '低調模式 Ctrl+Alt+Shift+Q', hotkeyBusy: (k) => `熱鍵被其他程式占用：${k}`, hotkeyTaken: '被其他程式占用',
     autoLow: '全螢幕、簡報或勿擾時自動低調', autoLowNote: '上班模式包含自己全螢幕看轉播時；陪看模式只在簡報與勿擾時。',
     sound: '卡片音效', volume: { low: '小', mid: '中', high: '大' }, test: '試聽',
@@ -192,7 +192,7 @@ const en: BarStrings = {
     version: (v) => `Version ${v}`, startCheck: 'Check for a new version at start-up',
   },
   b3: {
-    lowKey: 'Low-key', lowKeyTip: 'Double-click to restore', hotkeys: 'Global hotkeys',
+    lowKey: 'Low-key', lowKeyTip: 'Double-click to restore', terminal: 'Terminalol: look like a terminal (double-click for the bar)', terminalTip: 'Double-click for the bar', hotkeys: 'Global hotkeys',
     hotkeyHide: 'Hide every window Ctrl+Alt+Shift+H', hotkeyLow: 'Low-key Ctrl+Alt+Shift+Q', hotkeyBusy: (k) => `Hotkey taken by another program: ${k}`, hotkeyTaken: 'taken by another program',
     autoLow: 'Go low-key in full screen, presentations and quiet hours', autoLowNote: 'At work this includes your own full-screen stream; watching along, only presentations and quiet hours.',
     sound: 'Card sound', volume: { low: 'Low', mid: 'Medium', high: 'High' }, test: 'Play',
