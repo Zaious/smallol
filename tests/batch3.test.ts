@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BAR_STRINGS } from '../src/i18n/bar.ts';
+import { BAR_STRINGS, macKeys } from '../src/i18n/bar.ts';
 import { STRINGS } from '../src/i18n/index.ts';
 import { DEFAULTS, normalize, watchUrlProblem } from '../src/settings/schema.ts';
 import { settingsView } from '../src/ui/settings-view.ts';
@@ -32,10 +32,11 @@ describe('stream address (batch 3 §4)', () => {
 
 describe('hotkeys and low-key in the settings tab (batch 3 §1–2)', () => {
   it('a hotkey another program holds is named; none held, no note', () => {
-    const busy = settingsView(DEFAULTS, S, B, false, { lowNow: false, hotkeyBusy: ['Ctrl+Alt+Shift+H'], watchError: null });
+    // The labels as this machine writes them (⌃⌥⇧ on a Mac, where the release's macOS job runs the tests).
+    const busy = settingsView(DEFAULTS, S, B, false, { lowNow: false, hotkeyBusy: [macKeys('Ctrl+Alt+Shift+H')], watchError: null });
     // Beside the taken one only, in the accent colour.
-    expect(busy).toContain(`${B.b3.hotkeyHide} <span class="busy">${B.b3.hotkeyTaken}</span>`);
-    expect(busy).not.toContain(`${B.b3.hotkeyLow} <span class="busy">`);
+    expect(busy).toContain(`${macKeys(B.b3.hotkeyHide)} <span class="busy">${B.b3.hotkeyTaken}</span>`);
+    expect(busy).not.toContain(`${macKeys(B.b3.hotkeyLow)} <span class="busy">`);
     expect(settingsView(DEFAULTS, S, B, false, { lowNow: false, hotkeyBusy: [], watchError: null })).not.toContain('class="busy"');
   });
 
