@@ -125,6 +125,7 @@ body.low .lowrow { display: block; height: 22px; line-height: 22px; font: 12px v
 .termrow .c { display: inline-block; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
 .termrow .c.k-tm { width: 5ch; } .termrow .c.k-pl { width: 11ch; } .termrow .c.k-ch { width: 14ch; } .termrow .c.k-lb { width: 6ch; }
 .termrow .c.k-lv { width: 3ch; text-align: right; margin-right: 1ch; } .termrow .c.k-kda { width: 9ch; margin-right: 1ch; } .termrow .c.k-hp { width: 16ch; }
+.termrow .c.k-cs { width: 4ch; text-align: right; margin-right: 1ch; } .termrow .c.k-gd { width: 6ch; text-align: right; margin-right: 1ch; }
 .termrow .c.k-dd { width: 5ch; margin-left: 1ch; color: #c97a7a; }
 .termrow .head { color: #8a8a8a; }
 .termrow .dim2 { opacity: 0.55; }

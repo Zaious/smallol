@@ -128,7 +128,7 @@ const LOW_SIZE: Size = { w: 150, h: 24 };
  * here. Never saved as the bar's size.
  */
 let termLook = { lines: 6, wide: false };
-const termSize = (): Size => ({ w: termLook.wide ? 560 : 470, h: termLook.lines * TERM_LINE + 14 });
+const termSize = (): Size => ({ w: termLook.wide ? 640 : 470, h: termLook.lines * TERM_LINE + 14 });
 const winWidth = () => (lowKeyOn() ? LOW_SIZE.w : termOn() ? termSize().w : barWidth());
 type Pop = null | 'mode' | 'panels' | 'ask' | 'history';
 let popKind: Pop = null;

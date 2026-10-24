@@ -1,6 +1,6 @@
 // Terminalol (2026-10-24): the bar drawn as a terminal window running a sync job, laid out like a
 // process monitor. Sections the user picks (Settings > General): the players (during the draft their
-// picks under the roster's names, during the game champion, level, K/D/A and health), the draft kept
+// picks under the roster's names, during the game champion, level, K/D/A, CS, gold and health), the draft kept
 // during the game, each team's towers, the last log lines; and always a prompt line and a status line.
 // English by default (names line up, it reads more like a terminal), Chinese on request. Plain text in
 // fixed-width columns: nothing that reads as sport at a glance but the words themselves.
@@ -58,7 +58,7 @@ export function terminalView(c: TermCtx): { html: string; lines: number; wide: b
   const draft = s.draft?.current ?? null;
   const wide = on && opts.players;
   if (wide) {
-    out.push(`<div class="tl head">${cell('tm', 'TEAM')}${cell('pl', 'PLAYER')}${cell('ch', 'CHAMP')}${s.status === 'in_game' ? `${cell('lv', 'LV')}${cell('kda', 'K/ D/ A')}${cell('hp', 'HP')}` : ''}</div>`);
+    out.push(`<div class="tl head">${cell('tm', 'TEAM')}${cell('pl', 'PLAYER')}${cell('ch', 'CHAMP')}${s.status === 'in_game' ? `${cell('lv', 'LV')}${cell('kda', 'K/ D/ A')}${cell('cs', 'CS')}${cell('gd', 'GOLD')}${cell('hp', 'HP')}` : ''}</div>`);
     for (const t of TEAMS) {
       const code = c.code(t);
       const live = s.status === 'in_game' ? s.players?.[t] ?? null : null;
@@ -66,7 +66,7 @@ export function terminalView(c: TermCtx): { html: string; lines: number; wide: b
         for (const p of live) {
           const kda = `${String(p.kills ?? 0).padStart(2)}/${String(p.deaths ?? 0).padStart(2)}/${String(p.assists ?? 0).padStart(2)}`;
           const dead = p.hp === 0;
-          out.push(`<div class="tl${dead ? ' dim2' : ''}">${cell('tm', code)}${cell('pl', p.name)}${cell('ch', name(p.champion))}${cell('lv', String(p.level ?? ''))}${cell('kda', kda)}${cell('hp', hpBar(p))}${dead ? cell('dd', 'dead') : ''}</div>`);
+          out.push(`<div class="tl${dead ? ' dim2' : ''}">${cell('tm', code)}${cell('pl', p.name)}${cell('ch', name(p.champion))}${cell('lv', String(p.level ?? ''))}${cell('kda', kda)}${cell('cs', p.cs === null ? '' : String(p.cs))}${cell('gd', p.gold === null ? '' : fmtGold(p.gold))}${cell('hp', hpBar(p))}${dead ? cell('dd', 'dead') : ''}</div>`);
         }
       } else {
         const names = c.starters(code);

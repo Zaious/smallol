@@ -24,6 +24,8 @@ describe('Terminalol', () => {
     expect(v.wide).toBe(true);
     expect(v.html).toContain('TEAM');
     expect(v.html).toContain('Galio');
+    expect(v.html).toContain('>CS<');
+    expect(v.html).toContain('>GOLD<');
     expect(v.html).toMatch(/[#-]{10}\s+\d+%/);
     expect(v.html).toContain('tower');
     expect(v.html).not.toContain('>ban<');
