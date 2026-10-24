@@ -6,7 +6,8 @@
 
 import type { BarStrings } from '../i18n/bar.ts';
 import type { RosterPlayer, RosterTeam } from '../model/roster.ts';
-import { findPlayer, tally } from '../data/streamcv/history.ts';
+import { findPlayer, kda, tally } from '../data/streamcv/history.ts';
+import type { TeamGame } from '../model/history.ts';
 import { championName } from '../data/champions.ts';
 import { esc, type ViewCtx } from './views.ts';
 
@@ -82,7 +83,29 @@ export function teamFile(c: ViewCtx, B: BarStrings, t: RosterTeam, myTeam: strin
   const bp = games.length
     ? `<details class="bp"><summary>${esc(B.prof.bp)} · ${esc(c.S.eventGames(games.length))}</summary><div class="tl"><span class="k">${esc(c.S.ui.tendBans)}</span>${chips('bans')}</div><div class="tl"><span class="k">${esc(c.S.ui.tendPicks)}</span>${chips('picks')}</div></details>`
     : '';
-  return `${head}<div class="pfacts">${facts}</div><div class="ptags">${tags}</div>${path}${coaches}<div class="roster">${rows}</div>${bp}`;
+  return `${head}<div class="pfacts">${facts}</div><div class="ptags">${tags}</div>${path}${coaches}<div class="roster">${rows}</div>${bp}${teamGames(c, B, games)}`;
+}
+
+const day = (t: number, lang: ViewCtx['lang']) => new Date(t).toLocaleDateString(lang === 'zh-Hant' ? 'zh-TW' : 'en-GB', { month: 'numeric', day: 'numeric' });
+const stageName = (c: ViewCtx, s: string) => (c.S.stage as Record<string, string>)[s] ?? s;
+
+/**
+ * The team's games this event, newest first: one line per game (day, stage, opponent, side, result),
+ * opening to its five picks (role, player, champion) and its bans. Results are spoilers: shown only
+ * while scores are shown, like the player's champions.
+ */
+function teamGames(c: ViewCtx, B: BarStrings, games: TeamGame[]): string {
+  if (!games.length) return '';
+  const winsShown = !c.spoilerFree;
+  const rows = [...games].reverse().map((g) => {
+    const res = winsShown && g.win !== null ? `<b class="${g.win ? 'gw' : 'gl'}">${esc(g.win ? B.rec.win : B.rec.loss)}</b>` : '';
+    const sum = `<span class="mono muted">${esc(day(g.start, c.lang))}</span><span class="muted">${esc(stageName(c, g.stage))}${g.game ? ` G${g.game}` : ''}</span>`
+      + `<b>${esc(B.rec.vs(g.opponent ?? '?'))}</b>${g.side ? `<span class="sd ${g.side}">${esc(B.rec.side[g.side])}</span>` : ''}<span class="grow"></span>${res}`;
+    const picks = g.picks.map((p) => `<div class="gpick"><span class="k">${esc(p.role ? c.S.role[p.role] : '')}</span><span>${esc(p.player.replace(/^\S+\s/, ''))}</span><b>${esc(p.champion ? championName(p.champion, c.lang) : '?')}</b></div>`).join('');
+    const bans = g.bans.some(Boolean) ? `<div class="gbans"><span class="k">${esc(B.rec.bans)}</span>${g.bans.map((b) => `<span class="tchip">${esc(b ? championName(b, c.lang) : '?')}</span>`).join('')}</div>` : '';
+    return `<details class="tgame"><summary>${sum}</summary>${picks}${bans}</details>`;
+  }).join('');
+  return `<div class="poolh"><span class="k">${esc(B.rec.games)}</span><span class="grow"></span><button class="mini" data-toggle-spoiler="1">${esc(winsShown ? B.prof.hideWins : B.prof.showWins)}</button></div><div class="tgames">${rows}</div>`;
 }
 
 /** A player's page. */
@@ -102,9 +125,11 @@ export function playerFile(c: ViewCtx, B: BarStrings, t: RosterTeam, p: RosterPl
   const played = p.gamesThisWorlds ? `<p class="muted">${esc(B.prof.played(p.gamesThisWorlds))}</p>` : '';
   const ph = findPlayer(c.history.players, t.code, p.id);
   const winsShown = !c.spoilerFree;
+  // Every champion played this event: games, wins and losses (spoilers), KDA.
   const pool = ph && ph.pool.length
     ? `<div class="poolh"><span class="k">${esc(B.prof.pool)}</span><span class="grow"></span><button class="mini" data-toggle-spoiler="1">${esc(winsShown ? B.prof.hideWins : B.prof.showWins)}</button></div>`
-      + `<div class="pool">${ph.pool.slice(0, 5).map((e) => `<span class="tchip">${esc(championName(e.champion, c.lang))}<i>×${e.games}${winsShown && e.wins !== null ? ` · ${e.wins}${c.lang === 'zh-Hant' ? '勝' : 'W'}` : ''}</i></span>`).join('')}</div>`
+      + `<div class="ptable">${ph.pool.map((e) => `<div class="prow3"><b>${esc(championName(e.champion, c.lang))}</b><span class="muted">${esc(B.rec.pickedTimes(e.games))}</span>`
+        + `<span class="muted">${winsShown && e.wins !== null ? esc(B.rec.wl(e.wins, e.games - e.wins)) : ''}</span><span class="mono">${esc(B.rec.kda)} ${kda(e).toFixed(1)}</span></div>`).join('')}</div>`
     : `<p class="muted">${esc(B.prof.noPool)}</p>`;
   return `${head}<p class="names">${names}</p>${boxes}${wline}${played}${pool}`;
 }

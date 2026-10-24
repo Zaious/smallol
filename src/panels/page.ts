@@ -14,6 +14,7 @@ import { scheduleView } from '../ui/schedule-views.ts';
 import { settingsView } from '../ui/settings-view.ts';
 import { draftSeriesView, esc, schedCtx, timerChips, type ViewCtx } from '../ui/views.ts';
 import { playerFile, teamFile, teamIndex, teamResults } from '../ui/profile-views.ts';
+import { championsView, CHAMP_SORTS, type ChampSort } from '../ui/champion-views.ts';
 import type { PanelFrame } from './frame.ts';
 
 const name = (location.hash.slice(1) || 'minimap') as PanelName;
@@ -53,11 +54,13 @@ function body(f: PanelFrame): string {
   }
   if (name === 'draftGame') return draftPanel(c);
   if (name === 'players') return playersPanel(c, window.innerWidth >= 400);
-  const tabs = (['schedule', 'teams', 'series', 'settings'] as const).map((t) => `<button data-tab="${t}" aria-pressed="${f.dataTab === t}">${esc(B.tab[t])}</button>`).join('');
-  const content = f.dataTab === 'schedule' ? scheduleView(schedCtx(c)) : f.dataTab === 'teams' ? teamsTab(f, c) : f.dataTab === 'series' ? draftSeriesView(c) : settingsView(f.settings, c.S, B, f.endpointError, f.settingsExtra);
+  const tabs = (['schedule', 'teams', 'champions', 'series', 'settings'] as const).map((t) => `<button data-tab="${t}" aria-pressed="${f.dataTab === t}">${esc(B.tab[t])}</button>`).join('');
+  const content = f.dataTab === 'schedule' ? scheduleView(schedCtx(c)) : f.dataTab === 'teams' ? teamsTab(f, c) : f.dataTab === 'champions' ? championsView(c, B, champSort) : f.dataTab === 'series' ? draftSeriesView(c) : settingsView(f.settings, c.S, B, f.endpointError, f.settingsExtra);
   return `<nav class="dtabs">${tabs}</nav><div class="dbody tab-${f.dataTab}">${content}</div>`;
 }
 
+/** The champions tab's order: this window's own, never sent to the main window. */
+let champSort: ChampSort = 'presence';
 /** The search typed in the teams tab: this window's own, never sent to the main window. */
 let query = '';
 let composing = false;
@@ -103,6 +106,8 @@ new ResizeObserver(() => { lastHtml = ''; draw(); }).observe(root);
 root.addEventListener('click', (e) => {
   const t = (e.target as HTMLElement).closest<HTMLElement>('button, input[type=checkbox]');
   if (!t) return;
+  const cs = t.dataset.champSort as ChampSort | undefined;
+  if (cs && CHAMP_SORTS.includes(cs)) { champSort = cs; lastHtml = ''; draw(); return; }
   // `from`: a click in a window, not the bar's panel menu (whose buttons carry only data-panel).
   const data: Record<string, string> = { panel: name, from: name, ...t.dataset } as Record<string, string>;
   if (t instanceof HTMLInputElement && t.type === 'checkbox') data.checked = String(t.checked);

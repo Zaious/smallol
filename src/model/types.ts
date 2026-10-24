@@ -162,6 +162,8 @@ export interface MatchState {
   status: GameStatus;
   /** The official live feed is down while a game is on (the service says so): say it, do not look broken. */
   feedMissing?: boolean;
+  /** The game's official feed has stopped for over 2 minutes and the schedule still has it on: a pause, mostly. */
+  paused?: boolean;
   gameId: string | null;
   /** Service time of this snapshot (ISO), for "last updated". */
   updated: string | null;

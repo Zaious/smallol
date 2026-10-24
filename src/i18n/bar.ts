@@ -6,7 +6,11 @@ import type { EventKind } from '../events/kinds.ts';
 import type { Channel, NotifyBase, NotifyMode, PanelName } from '../settings/schema.ts';
 import type { Lang } from './index.ts';
 
-export type DataTab = 'schedule' | 'teams' | 'series' | 'settings';
+/** On a Mac the hotkeys' Ctrl+Alt+Shift is Control, Option, Shift: written ⌃⌥⇧ there. */
+const IS_MAC = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform || navigator.userAgent);
+export const macKeys = (s: string) => (IS_MAC ? s.replace(/Ctrl\+Alt\+Shift\+/g, '⌃⌥⇧') : s);
+
+export type DataTab = 'schedule' | 'teams' | 'champions' | 'series' | 'settings';
 
 export interface BarStrings {
   mode: Record<NotifyMode, string>;
@@ -35,6 +39,14 @@ export interface BarStrings {
     played(n: number): string; pool: string; showWins: string; hideWins: string; debut(y: number): string; noPool: string;
   };
   hist: { all: string; big: string; game(n: number, a: string, b: string): string; empty: string };
+  /** The team page's games, the player page's champions, the champions tab. */
+  rec: {
+    games: string; vs(code: string): string; side: Record<'B' | 'R', string>; win: string; loss: string; bans: string; none: string;
+    pool: string; pickedTimes(n: number): string; kda: string; wl(w: number, l: number): string;
+    title(n: number): string; presence: string; picks: string; bans2: string; winRate: string; champion: string; few: string; sortBy: string;
+  };
+  /** The feed of a game on the bar has stopped, while the official schedule still has the game on (a pause, mostly). */
+  paused: string;
   sections: Record<'notify' | 'events' | 'panels' | 'reminder' | 'general' | 'corner' | 'soon' | 'milestones', string>;
   milestones: Record<'all' | 'mine', string>;
   seconds(n: number): string;
@@ -74,7 +86,7 @@ const zh: BarStrings = {
     level6: '升 6 級', level11: '升 11、16 級', firstLegendary: '第一件傳說裝',
   },
   panel: { minimap: '小地圖', draftGame: '本局 BP', players: '選手面板', data: '資料窗' },
-  tab: { schedule: '賽程', teams: '隊伍', series: '全場 BP', settings: '設定' },
+  tab: { schedule: '賽程', teams: '隊伍', champions: '英雄', series: '全場 BP', settings: '設定' },
   prof: {
     search: '搜尋隊伍、選手…', today: '今日出場', mine: '我的隊伍', teams: '隊伍', players: '選手', noMatch: '找不到', back: '←',
     star: '設為我的隊伍', unstar: '取消我的隊伍', coaches: '教練', starter: '先發', sub: '替補', bp: '本屆 BP（常禁常選）',
@@ -82,6 +94,13 @@ const zh: BarStrings = {
     played: (n) => `本屆上場 ${n} 局`, pool: '本屆英雄池', showWins: '顯示勝率', hideWins: '隱藏勝率', debut: (y) => `${y} 出道`, noPool: '本屆還沒上場',
   },
   hist: { all: '全部', big: '重要事件', game: (n, a, b) => `第 ${n} 局 · ${a} 對 ${b}`, empty: '還沒有紀錄' },
+  rec: {
+    games: '本屆每局', vs: (t) => `對 ${t}`, side: { B: '藍方', R: '紅方' }, win: '勝', loss: '負', bans: '禁', none: '還沒有紀錄',
+    pool: '本屆英雄', pickedTimes: (n) => `${n} 局`, kda: 'KDA', wl: (w, l) => `${w} 勝 ${l} 負`,
+    title: (n) => `世界賽選禁 · ${n} 局`, presence: '出場率', picks: '選', bans2: '禁', winRate: '勝率', champion: '英雄',
+    few: '只算本服務有記錄的局，局數少時數字只供參考', sortBy: '排序',
+  },
+  paused: '比賽暫停中 · 官方數據暫停更新',
   icon: { mode: '通知模式', history: '歷史', panels: '面板', data: '資料窗', pause: '暫停通知 30 分鐘', resume: '恢復通知', tier: '切換大小', settings: '設定', watch: '看轉播' },
   ask: '你怎麼用這個小工具？之後可以從模式標籤改。',
   feedback: { mode: (m) => `通知模式：${m}`, paused: '通知已暫停 30 分鐘', resumed: '通知已恢復' },
@@ -133,13 +152,20 @@ const en: BarStrings = {
     level6: 'Level 6', level11: 'Levels 11, 16', firstLegendary: 'First legendary item',
   },
   panel: { minimap: 'Minimap', draftGame: 'Draft', players: 'Players', data: 'Data' },
-  tab: { schedule: 'Schedule', teams: 'Teams', series: 'Series draft', settings: 'Settings' },
+  tab: { schedule: 'Schedule', teams: 'Teams', champions: 'Champions', series: 'Series draft', settings: 'Settings' },
   prof: {
     search: 'Search teams, players…', today: 'Playing today', mine: 'My team', teams: 'Teams', players: 'Players', noMatch: 'No match', back: '←',
     star: 'Make my team', unstar: 'Not my team', coaches: 'Coaches', starter: 'Starter', sub: 'Substitute', bp: 'This event: bans, picks',
     worlds: 'Worlds titles', msi: 'MSI titles', league: 'League titles', worldsTimes: (n, y) => `Worlds ${n}×${y ? ` · last ${y}` : ''}`, allYears: 'All years',
     played: (n) => `${n} game${n === 1 ? '' : 's'} this event`, pool: 'Champions this event', showWins: 'Show wins', hideWins: 'Hide wins', debut: (y) => `debut ${y}`, noPool: 'No games this event yet',
   },
+  rec: {
+    games: 'Games this event', vs: (t) => `vs ${t}`, side: { B: 'Blue', R: 'Red' }, win: 'W', loss: 'L', bans: 'Bans', none: 'No games yet',
+    pool: 'Champions this event', pickedTimes: (n) => `${n} ${n === 1 ? 'game' : 'games'}`, kda: 'KDA', wl: (w, l) => `${w}W ${l}L`,
+    title: (n) => `Worlds picks and bans · ${n} games`, presence: 'Presence', picks: 'Picks', bans2: 'Bans', winRate: 'Win rate', champion: 'Champion',
+    few: 'Only games this service recorded; with few games the numbers are a rough guide', sortBy: 'Sort',
+  },
+  paused: 'Game paused · the official data has stopped for now',
   hist: { all: 'All', big: 'Big events', game: (n, a, b) => `Game ${n} · ${a} vs ${b}`, empty: 'Nothing yet' },
   icon: { mode: 'Notification mode', history: 'History', panels: 'Panels', data: 'Data window', pause: 'Pause notifications for 30 min', resume: 'Resume notifications', tier: 'Change size', settings: 'Settings', watch: 'Watch the stream' },
   ask: 'How will you use this? You can change it later from the mode label.',

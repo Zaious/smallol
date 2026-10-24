@@ -3,7 +3,7 @@
 // the main window applies them.
 
 import type { Strings } from '../i18n/index.ts';
-import type { BarStrings } from '../i18n/bar.ts';
+import { macKeys, type BarStrings } from '../i18n/bar.ts';
 import { channelOf, EVENT_KINDS } from '../events/kinds.ts';
 import { CHANNELS, FEATURES, REMINDER_LEADS, SOON_LEADS, type Settings } from '../settings/schema.ts';
 import { esc } from './views.ts';
@@ -69,7 +69,7 @@ export function settingsView(cfg: Settings, S: Strings, B: BarStrings, endpointE
     <div class="srow">${check('tickClock', cfg.tickClock, t.tickClock)}</div>
     <div class="srow">${check('lowKey', x.lowNow, b.lowKey)}</div>
     <div class="srow">${check('hotkeys', cfg.hotkeys, b.hotkeys)}</div>
-    ${cfg.hotkeys ? `<p class="note">${[b.hotkeyHide, b.hotkeyLow].map((line) =>
+    ${cfg.hotkeys ? `<p class="note">${[macKeys(b.hotkeyHide), macKeys(b.hotkeyLow)].map((line) =>
       // A hotkey another program holds says so beside it, in the accent colour (batch 3 closing note).
       esc(line) + (x.hotkeyBusy.some((k) => line.endsWith(k)) ? ` <span class="busy">${esc(b.hotkeyTaken)}</span>` : '')).join('<br>')}</p>` : ''}
     <div class="srow">${check('autoLowKey', cfg.autoLowKey, b.autoLow)}</div>

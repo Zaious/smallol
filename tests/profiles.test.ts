@@ -65,8 +65,10 @@ describe('team and player profiles', () => {
     expect(html).toMatch(/聯賽冠軍<\/span><b>6<\/b>/);
     // KC Canna has recorded games: the pool shows games; wins only with scores shown.
     const canna = roster.KC!.players.find((p) => p.id === 'Canna')!;
-    expect(playerFile(ctx(), B, roster.KC!, canna)).not.toContain('勝</i>');
-    expect(playerFile(ctx({ spoilerFree: false }), B, roster.KC!, canna)).toContain('勝</i>');
+    // Every champion with games and KDA; wins and losses only while scores may show.
+    expect(playerFile(ctx(), B, roster.KC!, canna)).not.toMatch(/\d 勝 \d 負/);
+    expect(playerFile(ctx(), B, roster.KC!, canna)).toContain('KDA 2.8');
+    expect(playerFile(ctx({ spoilerFree: false }), B, roster.KC!, canna)).toContain('2 勝 0 負');
   });
 });
 

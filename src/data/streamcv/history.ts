@@ -86,5 +86,36 @@ export function teamPlayers(players: Record<string, PlayerHistory> | null, code:
   return Object.values(players).filter((p) => p.team === code).sort((a, b) => order(a.role) - order(b.role));
 }
 
+export interface ChampStat {
+  champion: Champion;
+  picks: number;
+  bans: number;
+  /** Picks whose game has a known result, and how many of those were won (spoilers). */
+  decided: number;
+  wins: number;
+}
+
+/**
+ * This event's picks and bans per champion, from the teams' games (each game is in two teams' lists;
+ * a champion is picked or banned at most once per game, so counting each team's own picks and bans
+ * counts each game once). `games` is the number of distinct games.
+ */
+export function championStats(teams: Record<string, TeamGame[]> | null): { games: number; rows: ChampStat[] } {
+  const ids = new Set<string>(); const m = new Map<Champion, ChampStat>();
+  const row = (c: Champion) => { let r = m.get(c); if (!r) m.set(c, (r = { champion: c, picks: 0, bans: 0, decided: 0, wins: 0 })); return r; };
+  for (const games of Object.values(teams ?? {})) {
+    for (const g of games) {
+      ids.add(g.gameId);
+      for (const b of g.bans) if (b) row(b).bans++;
+      for (const p of g.picks) {
+        if (!p.champion) continue;
+        const r = row(p.champion); r.picks++;
+        if (g.win !== null) { r.decided++; if (g.win) r.wins++; }
+      }
+    }
+  }
+  return { games: ids.size, rows: [...m.values()] };
+}
+
 /** (K + A) / D, with D at least 1. */
 export const kda = (e: { k: number; d: number; a: number }) => (e.k + e.a) / Math.max(1, e.d);

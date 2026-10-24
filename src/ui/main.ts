@@ -36,7 +36,7 @@ import { adapt, emptyState } from '../data/streamcv/adapter.ts';
 import { clockNow, fmtClock, steadyClock } from '../model/clock.ts';
 import { TEAMS, type MatchState, type Team } from '../model/types.ts';
 import { detectLang, STRINGS, type Lang } from '../i18n/index.ts';
-import { BAR_STRINGS, type DataTab } from '../i18n/bar.ts';
+import { BAR_STRINGS, macKeys, type DataTab } from '../i18n/bar.ts';
 import { DEFAULTS, normalize, PANELS, watchUrlProblem, type NotifyBase, type PanelName, type Settings, type Size } from '../settings/schema.ts';
 import { SettingsStore, type SettingsBackend } from '../settings/store.ts';
 import { Announced, deriveEvents, dueReminders, winnerOf } from '../events/derive.ts';
@@ -398,7 +398,7 @@ function startUpdate(): void {
 let scrollTo: string | null = null;
 /** Hotkeys by name and whether they are registered (src-tauri set_hotkeys). */
 let hotkeyState: Record<string, boolean> = {};
-const HOTKEY_LABEL: Record<string, string> = { hide: 'Ctrl+Alt+Shift+H', lowkey: 'Ctrl+Alt+Shift+Q' };
+const HOTKEY_LABEL: Record<string, string> = { hide: macKeys('Ctrl+Alt+Shift+H'), lowkey: macKeys('Ctrl+Alt+Shift+Q') };
 const panels = inTauri ? new Panels((n) => cfg().sizes[`size-panel-${n}`] ?? PANEL_SIZE[n]) : null;
 function sendPanels(): void {
   if (!panels) return;
@@ -608,6 +608,8 @@ function render(): void {
   else if (updateNote) swapLine(lineHtml({ text: updateNote, at: null, team: null }), null, true);
   // The official feed is down mid-game (2026-10-19, Day 4 game 1): say so instead of "picks so far: 0".
   else if (state.feedMissing) swapLine(lineHtml({ text: B.feedDown, at: null, team: null }), null, true);
+  // A pause (the feed stopped, the game is still on): say so instead of a clock that stands still.
+  else if (state.paused) swapLine(lineHtml({ text: B.paused, at: null, team: null }), null, true);
   else {
     note = null;
     const current = line && (line.game === state.gameId || state.status === 'finished' || state.status === 'waiting') ? line : null;

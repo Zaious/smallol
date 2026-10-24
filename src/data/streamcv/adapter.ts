@@ -60,6 +60,7 @@ export function adapt(input: unknown): MatchState {
   s.gameId = typeof raw.game === 'string' ? raw.game : null;
   s.updated = typeof raw.updated === 'string' ? raw.updated : null;
   if (raw.feed === 'missing') s.feedMissing = true;
+  if (raw.paused === true && s.status === 'in_game') s.paused = true;
   if (status === 'idle') return s;
   s.clock = parseClock(raw.gameClock);
 
