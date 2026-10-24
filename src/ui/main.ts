@@ -34,8 +34,8 @@ import type { RosterTeam } from '../model/roster.ts';
 import type { Schedule } from '../model/schedule.ts';
 import { adapt, emptyState } from '../data/streamcv/adapter.ts';
 import { clockNow, fmtClock, steadyClock } from '../model/clock.ts';
-import { LANES, TEAMS, type Lane, type MatchState, type Team, type TowerSite } from '../model/types.ts';
-import { championName } from '../data/champions.ts';
+import { TEAMS, type MatchState, type Team } from '../model/types.ts';
+import { TERM_LINE, terminalView, type TermCtx } from './terminal-view.ts';
 import { detectLang, STRINGS, type Lang } from '../i18n/index.ts';
 import { BAR_STRINGS, macKeys, type DataTab } from '../i18n/bar.ts';
 import { DEFAULTS, normalize, PANELS, watchUrlProblem, type NotifyBase, type PanelName, type Settings, type Size } from '../settings/schema.ts';
@@ -123,13 +123,12 @@ const barWidth = () => cfg().sizes[`size-${tier()}`]?.w ?? BAR_SIZE[tier()].w;
 /** Low-key (batch 3 §2): one grey line of numbers, 150×24, top-left where the bar was. Never saved as the bar's size. */
 const LOW_SIZE: Size = { w: 150, h: 24 };
 /**
- * Terminalol (2026-10-24): the bar as a terminal pane. Six lines; during a draft and a game four more,
- * the draft and the towers (the game windows stay shut in this look, so their news goes in here).
- * Never saved as the bar's size.
+ * Terminalol (2026-10-24): the bar as a terminal pane (src/ui/terminal-view.ts), as tall as its lines
+ * and wider while the players are in it. The game windows stay shut in this look, so their news goes in
+ * here. Never saved as the bar's size.
  */
-const TERM_SIZE: Size = { w: 470, h: 120 }, TERM_TALL: Size = { w: 560, h: 188 };
-const termTall = () => state.status === 'waiting' || state.status === 'in_game';
-const termSize = () => (termTall() ? TERM_TALL : TERM_SIZE);
+let termLook = { lines: 6, wide: false };
+const termSize = (): Size => ({ w: termLook.wide ? 560 : 470, h: termLook.lines * TERM_LINE + 14 });
 const winWidth = () => (lowKeyOn() ? LOW_SIZE.w : termOn() ? termSize().w : barWidth());
 type Pop = null | 'mode' | 'panels' | 'ask' | 'history';
 let popKind: Pop = null;
@@ -259,6 +258,7 @@ function logEvents(events: GameEvent[], s: MatchState): void {
   const game = s.series?.matchId ? `${s.series.matchId}-${s.series.game}` : s.gameId ?? `m-${s.draft?.current?.game ?? 0}`;
   const add = events.filter((e) => e.kind !== 'reminder' && channelOf(e.kind, cfg()) !== 'off').map((e): LogEntry => ({
     game, n: s.series?.game ?? s.draft?.current?.game ?? null, teams: [code('B'), code('R')], at: e.at, text: eventText(e, code, lang, cfg().spoilerFree).title,
+    en: lang === 'en' ? undefined : eventText(e, code, 'en', cfg().spoilerFree).title,
     level: LEVEL[e.kind], side: e.team, code: e.team ? code(e.team) : null, victim: e.victim ? code(e.victim) : null, t: Date.now(),
     player: e.player, victimPlayer: e.victimPlayer,
   }));
@@ -599,64 +599,18 @@ function lowText(clock: number | null): string {
   return '—';
 }
 
-/**
- * Terminalol: a prompt, the last four lines of the log as a job's output, and a status line with the
- * score, the clock, the gold lead and the next objective. Plain text in a terminal's colours: nothing
- * that reads as sport at a glance but the words themselves.
- */
-function termHtml(clock: number | null): string {
-  const s = state;
-  const out: string[] = [`<div class="tl prompt">~/work/sync $ npm run sync -- --watch</div>`];
-  const lines = logList.slice(-4);
-  for (const e of lines) {
-    const when = e.at === null ? new Date(e.t).toTimeString().slice(0, 8) : fmtClock(e.at).padStart(5, '0');
-    const lvl = e.level === 'major' ? 'warn ' : 'info ';
-    out.push(`<div class="tl${e.level === 'major' ? ' warn' : ''}">[${esc(when)}] ${lvl} ${esc(e.text)}</div>`);
-  }
-  for (let i = lines.length; i < 4; i++) out.push('<div class="tl dim">&nbsp;</div>');
-  const code = codeOf(s);
-  let st: string;
-  if (s.status === 'in_game') {
-    const d = (s.teams.B.gold ?? 0) - (s.teams.R.gold ?? 0);
-    const lead = d === 0 ? '±0' : `${code(d > 0 ? 'B' : 'R')} +${fmtGold(Math.abs(d))}`;
-    const next: string[] = [];
-    const nd = s.nextDragon;
-    if (nd && clock !== null) { const e = nd.elder ? 'elder' : nd.element; next.push(`${e ? S.element[e] : S.ui.dragon} ${nd.at > clock ? fmtClock(nd.at - clock) : B.up}`); }
-    const nb = s.nextBaron;
-    if (nb && clock !== null && s.pitNext !== 'grubs' && s.pitNext !== 'herald') next.push(`${S.ui.baron} ${nb.at > clock ? fmtClock(nb.at - clock) : B.up}`);
-    st = `${code('B')} ${s.teams.B.kills ?? 0}-${s.teams.R.kills ?? 0} ${code('R')}  t=${clock === null ? '--:--' : fmtClock(clock)}  Δ ${lead}${next.length ? `  ${next.join('  ')}` : ''}`;
-  } else st = statusRow(clock).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() + (s.status === 'idle' ? `  ${restingLine(clock).key === 'none' ? '' : restingLine(clock).html.replace(/<[^>]+>/g, '')}` : '');
-  if (termTall()) out.push(...termDraft(), ...termTowers());
-  out.push(`<div class="tl status">» ${esc(st)}<i class="cur"></i></div>`);
-  return out.join('');
-}
-
-/** The draft as two lines: each team's picks so far in brackets, then its bans. */
-function termDraft(): string[] {
-  const c = state.draft?.current;
-  if (!c) return [];
-  const code = codeOf(state);
-  const name = (x: string | null) => (x ? championName(x, lang) : '·');
-  return TEAMS.map((t) => {
-    const sd = c.sides[t];
-    const picks = sd.picks;
-    return `<div class="tl">draft  ${esc(code(t).padEnd(4))} [${esc(picks.map(name).join(' '))}]  ban ${esc(sd.bans.map(name).join(' '))}</div>`;
-  });
-}
-
-/** Each team's own towers lane by lane, outer to inner (# up, - down, ? maybe), its nexus turrets and its inhibitors: plain ASCII, so every font lines it up. */
-function termTowers(): string[] {
-  const s = state;
-  if (s.status !== 'in_game' || !s.towersKnown) return [];
-  const code = codeOf(s);
-  return TEAMS.map((t) => {
-    const tw = s.teams[t].towers;
-    const g = (site: TowerSite) => (tw[site]?.down ? '-' : tw[site]?.maybe ? '?' : '#');
-    const lane = (l: Lane) => `${l} ${g(`${l}_outer` as TowerSite)}${g(`${l}_inner` as TowerSite)}${g(`${l}_inhib_tower` as TowerSite)}`;
-    const down = new Set(s.teams[t].inhibitorsDown.map((i) => i.lane));
-    const inhib = LANES.map((l) => (down.has(l) ? '-' : '#')).join('');
-    return `<div class="tl">tower  ${esc(code(t).padEnd(4))} ${LANES.map(lane).join('  ')}  base ${g('nexus_t1')}${g('nexus_t2')}  inhib ${inhib}</div>`;
-  });
+function termCtx(clock: number | null): TermCtx {
+  const o = cfg().term;
+  const idle = `${statusRow(clock).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()}${state.status === 'idle' ? `  ${restingLine(clock).html.replace(/<[^>]+>/g, '')}` : ''}`;
+  return {
+    s: state, clock, log: logList, opts: o, code: codeOf(state), idleText: idle, S: STRINGS[o.zh ? 'zh-Hant' : 'en'], B,
+    starters: (code) => {
+      const t = roster?.[code];
+      if (!t) return [];
+      const at = (r: string | null) => { const i = (['top', 'jungle', 'mid', 'bot', 'support'] as (string | null)[]).indexOf(r); return i < 0 ? 9 : i; };
+      return t.players.filter((p) => p.starter).sort((a, b) => at(a.role) - at(b.role)).map((p) => p.id);
+    },
+  };
 }
 
 function render(): void {
@@ -679,7 +633,9 @@ function render(): void {
     bar.title = B.b3.terminalTip;
     let el = bar.querySelector<HTMLElement>('.termrow');
     if (!el) { el = document.createElement('div'); el.className = 'termrow'; bar.appendChild(el); }
-    const html = termHtml(clock);
+    const v = terminalView(termCtx(clock));
+    termLook = { lines: v.lines, wide: v.wide };
+    const html = v.html;
     if (el.innerHTML !== html) el.innerHTML = html;
     // A draft or a game starts or ends: the pane grows or shrinks to its lines.
     const want = termSize();

@@ -84,6 +84,8 @@ export interface Settings {
   lowKey: boolean;
   /** Terminalol: the bar drawn as a terminal window running a sync job, the game as its log lines. */
   terminal: boolean;
+  /** Terminalol's sections, and its language (English by default: names line up, it reads more like a terminal). */
+  term: { players: boolean; draftInGame: boolean; towers: boolean; log: boolean; zh: boolean };
   /** The two global hotkeys (hide everything, low-key). */
   hotkeys: boolean;
   /** Go low-key by itself while Windows says not to disturb (full screen, presenting, quiet hours). */
@@ -122,6 +124,7 @@ export const DEFAULTS: Settings = {
   myTeam: null,
   lowKey: false,
   terminal: false,
+  term: { players: true, draftInGame: false, towers: true, log: true, zh: false },
   hotkeys: true,
   autoLowKey: true,
   cardSound: false,
@@ -201,6 +204,8 @@ export function normalize(raw: unknown): Settings {
     myTeam: typeof o.myTeam === 'string' && /^[A-Za-z0-9]{2,5}$/.test(o.myTeam) ? o.myTeam : null,
     lowKey: bool(o.lowKey, d.lowKey),
     terminal: bool(o.terminal, d.terminal),
+    term: (() => { const t = (o.term && typeof o.term === 'object' ? o.term : {}) as Record<string, unknown>;
+      return { players: bool(t.players, d.term.players), draftInGame: bool(t.draftInGame, d.term.draftInGame), towers: bool(t.towers, d.term.towers), log: bool(t.log, d.term.log), zh: bool(t.zh, d.term.zh) }; })(),
     hotkeys: bool(o.hotkeys, d.hotkeys),
     autoLowKey: bool(o.autoLowKey, d.autoLowKey),
     cardSound: bool(o.cardSound, d.cardSound),

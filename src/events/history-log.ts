@@ -16,6 +16,8 @@ export interface LogEntry {
   /** Game clock, when the event has one. */
   at: number | null;
   text: string;
+  /** The same in English, for Terminalol's English log (since 0.1.6; older entries have none). */
+  en?: string;
   level: Level;
   /** The doer's side and code, and the code of the team it happened to. */
   side: Team | null;

@@ -121,3 +121,11 @@ body.term .termrow { display: block; }
 .termrow .cur { display: inline-block; width: 7px; height: 13px; margin-left: 2px; vertical-align: -2px; background: #c8c8c8; animation: blink 1.1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 body.low .lowrow { display: block; height: 22px; line-height: 22px; font: 12px var(--mono); color: #a3a3a3; white-space: nowrap; overflow: hidden; }
+/* Terminalol columns: fixed widths in characters, so names (and Chinese, two columns a character) line up. */
+.termrow .c { display: inline-block; vertical-align: top; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+.termrow .c.k-tm { width: 5ch; } .termrow .c.k-pl { width: 11ch; } .termrow .c.k-ch { width: 14ch; } .termrow .c.k-lb { width: 6ch; }
+.termrow .c.k-lv { width: 3ch; text-align: right; margin-right: 1ch; } .termrow .c.k-kda { width: 9ch; margin-right: 1ch; } .termrow .c.k-hp { width: 16ch; }
+.termrow .c.k-dd { width: 5ch; margin-left: 1ch; color: #c97a7a; }
+.termrow .head { color: #8a8a8a; }
+.termrow .dim2 { opacity: 0.55; }
+.termrow .prompt .r { float: right; color: #e6e6e6; }
