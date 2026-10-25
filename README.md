@@ -47,7 +47,7 @@ Checking aids for development (screenshots without clicking, replaying recorded 
 
 ## Privacy
 
-No account, no analytics. The app talks to the data service you set (the public one by default), asks GitHub once after start-up whether a newer version is out (you can switch that off), and, only when you click **▶ Watch**, opens the stream address you saved in your browser. Settings and the event history stay in the app's config folder.
+No account, no analytics. The app talks to the data service you set (the public one by default), asks GitHub once after start-up whether a newer version is out (you can switch that off), and, only when you click **▶ Watch**, opens the stream address you saved in your browser. Settings and the event history stay in the app's config folder. The public data service counts only how many different apps connect each hour, as a number; it keeps no IP addresses (see `tools/live_service.py`, `Usage`, in smallol-cv).
 
 ## Support
 

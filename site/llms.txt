@@ -3,7 +3,7 @@
 > SmalLoL is a free, open-source, unofficial desktop companion for following live League of Legends esports (for example the 2026 World Championship). A thin bar in a corner of the screen shows the score, the game clock, the gold lead, the next objective timers (drakes, Baron, Herald) and the latest play; the big moments appear as small notices in the corner. It is a fan project, not endorsed by Riot Games. Windows 10 and 11 (installer that updates itself, and a portable zip), and an experimental notarized macOS build; first released on 2026-10-22, version 0.1.6 on 2026-10-24.
 
 - Free, no ads, nothing to pay for. Apache License 2.0. Made by Zaious at ChronicleCore Studio.
-- No account, no analytics. The app reads one JSON document every five seconds from a match data service (smallol-cv, open source), which combines the official LoL Esports live data with what it reads from the broadcast picture. Users can run their own instance.
+- No account, no analytics. The app reads one JSON document every five seconds from a match data service (smallol-cv, open source), which combines the official LoL Esports live data with what it reads from the broadcast picture. Users can run their own instance. The public service counts only how many different apps connect each hour (a number; no IP addresses are kept).
 - Two presets: "At work" (not watching) and "Watching along" (the stream is on), or each event set by hand.
 - Optional minimap, draft and players windows that open by themselves during a match.
 - Schedule, team and player pages, a spoiler-free switch, a history of the last five games' events.
