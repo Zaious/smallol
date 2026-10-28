@@ -38,7 +38,7 @@ export interface Strings {
     | 'grubs' | 'herald' | 'heraldMaybeUp' | 'sidesUnconfirmed' | 'sidesUnconfirmedHint' | 'elementByRules'
     | 'nextMatch' | 'onNow' | 'tbd' | 'finished' | 'showScores' | 'hideScores' | 'noSchedule' | 'seasonOver' | 'spoilerOn'
     | 'tendBans' | 'tendPicks' | 'noHistory' | 'historyScope' | 'backToSchedule' | 'thisEvent' | 'pool'
-    | 'coaches' | 'substitute' | 'notPlayedYet',
+    | 'coaches' | 'substitute' | 'notPlayedYet' | 'gamesBP' | 'gamesBPSpoil' | 'nextTend',
     string
   >;
   set: Record<
@@ -105,7 +105,7 @@ const zh: Strings = {
     nextMatch: '下一場', onNow: '進行中', tbd: '待定', finished: '已結束', showScores: '顯示比分', hideScores: '隱藏比分',
     noSchedule: '讀不到賽程', seasonOver: '本季賽程已結束', spoilerOn: '不爆雷',
     tendBans: '常禁', tendPicks: '常選', noHistory: '本屆還沒有記錄', historyScope: '只含本服務有記錄的 Worlds 2026 小局',
-    backToSchedule: '← 賽程', thisEvent: '本屆', pool: '本屆英雄', coaches: '教練', substitute: '替補', notPlayedYet: '本屆還沒上場',
+    backToSchedule: '← 賽程', thisEvent: '本屆', pool: '本屆英雄', coaches: '教練', substitute: '替補', notPlayedYet: '本屆還沒上場', gamesBP: '各局 BP', gamesBPSpoil: '各局 BP（點開會看到打了幾局）', nextTend: '下一場 · 本屆常禁、常選',
     sidesUnconfirmedHint: '開打前官方資料的藍紅方常是反的，畫面也還判斷不出來：隊伍名可能對調', elementByRules: '屬性依規則推算（轉播畫面讀不到）', level: 'Lv', cs: '補刀', kda: '擊殺／死亡／助攻', hp: '血量',
   },
   set: {
@@ -172,7 +172,7 @@ const en: Strings = {
     nextMatch: 'Next match', onNow: 'On now', tbd: 'TBD', finished: 'Done', showScores: 'Show scores', hideScores: 'Hide scores',
     noSchedule: "Can't read the schedule", seasonOver: 'No more matches this season', spoilerOn: 'Spoiler-free',
     tendBans: 'Bans', tendPicks: 'Picks', noHistory: 'No games recorded yet', historyScope: 'Only Worlds 2026 games the service recorded',
-    backToSchedule: '← Schedule', thisEvent: 'This event', pool: 'Champions this event', coaches: 'Coaches', substitute: 'Substitute', notPlayedYet: 'No games this event yet',
+    backToSchedule: '← Schedule', thisEvent: 'This event', pool: 'Champions this event', coaches: 'Coaches', substitute: 'Substitute', notPlayedYet: 'No games this event yet', gamesBP: 'Draft by game', gamesBPSpoil: 'Draft by game (opening it shows how many games were played)', nextTend: 'Next match · most banned and picked',
     sidesUnconfirmedHint: 'Before a game the official sides are often swapped, and the broadcast could not tell yet: team names may be on the wrong side', elementByRules: 'Element worked out from the rules (not read from the broadcast)', level: 'Lv', cs: 'CS', kda: 'Kills / deaths / assists', hp: 'Health',
   },
   set: {

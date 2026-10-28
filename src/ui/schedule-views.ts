@@ -5,7 +5,9 @@
 import type { Schedule, ScheduleMatch } from '../model/schedule.ts';
 import { listWindow, nextMatch } from '../data/streamcv/schedule.ts';
 import type { Lang, Strings } from '../i18n/index.ts';
-import type { History } from '../model/history.ts';
+import type { History, TeamGame } from '../model/history.ts';
+import type { Team } from '../model/types.ts';
+import { TEAM_COLOUR } from '../render/map-svg.ts';
 import { tally, teamPlayers } from '../data/streamcv/history.ts';
 import { championName } from '../data/champions.ts';
 import type { RosterTeam } from '../model/roster.ts';
@@ -135,9 +137,42 @@ function teamBlock(c: ScheduleCtx, code: string): string {
   return `<div class="tblock">${head}${tend}${rows}</div>`;
 }
 
-/** Both teams of a match: this event's most banned and picked, and each player's most played. No wins. */
+/**
+ * A match already played: each game, opening to both teams' bans and picks (blue side first).
+ * Games come from the history, by the two teams and the match's day. Winners only while scores are shown.
+ */
+export function seriesGames(c: ScheduleCtx, m: ScheduleMatch): string {
+  if (m.state === 'unstarted') return '';
+  const a = m.teams[0].code, b = m.teams[1].code;
+  const near = (g: TeamGame) => g.start >= m.start - 2 * 3600_000 && g.start <= m.start + 12 * 3600_000;
+  const ours = (c.history.teams?.[a] ?? []).filter((g) => g.opponent === b && near(g)).sort((x, y) => (x.game ?? 0) - (y.game ?? 0) || x.start - y.start);
+  if (!ours.length) return '';
+  const theirs = new Map((c.history.teams?.[b] ?? []).map((g) => [g.gameId, g]));
+  const dot = (t: Team) => `<i class="dot" style="background:${TEAM_COLOUR[t]}"></i>`;
+  const side = (code: string, g: TeamGame | undefined, t: Team) => {
+    const picks = (g?.picks ?? []).map((p) => `<div class="gpick"><span class="k">${esc(p.role ? c.S.role[p.role] : '')}</span><span>${esc(p.player.replace(/^\S+\s/, ''))}</span><b>${esc(p.champion ? championName(p.champion, c.lang) : '?')}</b></div>`).join('');
+    const bans = g?.bans.some(Boolean)
+      ? `<div class="gbans"><span class="k">${esc(c.S.ui.bans)}</span>${g.bans.map((x) => `<span class="tchip">${esc(x ? championName(x, c.lang) : '?')}</span>`).join('')}</div>`
+      : `<div class="gbans muted">${esc(c.S.ui.bansMissing)}</div>`;
+    return `<div class="gside">${dot(t)}<b>${esc(code)}</b></div>${picks}${bans}`;
+  };
+  const rows = ours.map((g) => {
+    const blueIsA = g.side !== 'R';
+    const [blue, red] = blueIsA ? [a, b] : [b, a];
+    const [gBlue, gRed] = blueIsA ? [g, theirs.get(g.gameId)] : [theirs.get(g.gameId), g];
+    const winner = c.spoilerFree || g.win === null ? null : g.win ? a : b;
+    const name = (x: string) => `<b class="${winner === x ? 'win' : ''}">${esc(x)}</b>`;
+    const sum = `<span class="mono">G${g.game ?? '?'}</span>${dot('B')}${name(blue)}<span class="muted">vs</span>${dot('R')}${name(red)}`;
+    return `<details class="tgame"><summary>${sum}</summary>${side(blue, gBlue, 'B')}${side(red, gRed, 'R')}</details>`;
+  }).join('');
+  // Spoiler-free: the number of games gives the score away (2 games of a best of 3 = 2-0), so the list stays closed.
+  if (c.spoilerFree) return `<details class="tblock sgames"><summary class="th"><b>${esc(c.S.ui.gamesBPSpoil)}</b></summary><div class="tgames">${rows}</div></details>`;
+  return `<div class="tblock sgames"><div class="th"><b>${esc(c.S.ui.gamesBP)}</b></div><div class="tgames">${rows}</div></div>`;
+}
+
+/** Both teams of a match: each game's draft once played, this event's most banned and picked, and each player's most played. */
 function matchDetail(c: ScheduleCtx, m: ScheduleMatch, toggle: string): string {
   const head = `<header><button class="back" data-action="schedule-back">${esc(c.S.ui.backToSchedule)}</button>`
     + `<span class="mono muted">${esc(fmtStart(m.start, c.lang, c.timeZone))}</span><span class="muted">${esc(stageOf(c, m))}${m.bestOf ? ` ${esc(c.S.bo(m.bestOf))}` : ''}</span><span class="grow"></span>${toggle}</header>`;
-  return `${head}<div class="slist detail">${teamBlock(c, m.teams[0].code)}${teamBlock(c, m.teams[1].code)}<p class="note muted">${esc(c.S.ui.historyScope)}</p></div>`;
+  return `${head}<div class="slist detail">${seriesGames(c, m)}${teamBlock(c, m.teams[0].code)}${teamBlock(c, m.teams[1].code)}<p class="note muted">${esc(c.S.ui.historyScope)}</p></div>`;
 }

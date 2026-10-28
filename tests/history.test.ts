@@ -6,6 +6,7 @@ import { STRINGS } from '../src/i18n/index.ts';
 import { DEFAULTS } from '../src/settings/schema.ts';
 import { scheduleView, type ScheduleCtx } from '../src/ui/schedule-views.ts';
 import { draftGameView, playersView, poolTitle, viewHeight, type ViewCtx } from '../src/ui/views.ts';
+import { draftPanel } from '../src/ui/panel-views.ts';
 import day2 from '../fixtures/streamcv/state_v05_kc_mvk_g2.json' with { type: 'json' };
 
 // Hand-written in the shape of /history/teams.json and /history/players.json (contract v0.6),
@@ -131,6 +132,45 @@ describe('schedule: pick a match to see both teams', () => {
     expect(html).toContain('杰西<i>2</i>');
     expect(html).toContain('待定');
     expect(html).not.toContain('勝');
+    expect(html).not.toContain('各局 BP');                   // not played yet
+  });
+
+  // 0.1.8: a played match opens to each game's draft, both teams (maintainer, 2026-10-28).
+  const played = adaptSchedule({ matches: [
+    { matchId: 'm0', start: '2026-10-16T18:00:00Z', state: 'completed', stage: 'Play-Ins', bestOf: 1, teams: [{ code: 'MVK', name: 'MGN Vikings' }, { code: 'KC', name: 'Karmine Corp' }], result: { wins: [0, 1], winner: 'KC' } },
+  ] });
+  it("played: each game with both teams' bans and picks, blue first; the winner only when scores show", () => {
+    const html = scheduleView(sc({ schedule: played, picked: 'm0' }));
+    expect(html).toContain('<details class="tblock sgames"><summary class="th"><b>各局 BP（點開會看到打了幾局）');   // closed: the game count is a spoiler
+    expect(html.match(/<details class="tgame">/g)).toHaveLength(1);   // KC's two games against C9 are another match
+    const at = html.indexOf('<details class="tgame"><summary>');
+    const sum = html.slice(at, html.indexOf('</summary>', at));
+    expect(sum.indexOf('KC')).toBeLessThan(sum.indexOf('MVK'));        // KC was blue
+    expect(html).toContain('<b>Kratos</b>');                           // MVK's picks, from MVK's own history
+    expect(html).toContain('<b>Canna</b>');
+    expect(html).not.toContain('class="win"');
+    const open = scheduleView(sc({ schedule: played, picked: 'm0', spoilerFree: false }));
+    expect(open).toContain('<b class="win">KC</b>');
+    expect(open).toContain('<div class="tblock sgames"><div class="th"><b>各局 BP</b>');
+  });
+});
+
+describe('draft window with no game on: the next match', () => {
+  const next = adaptSchedule({ matches: [
+    { matchId: 'm2', start: '2026-10-20T18:00:00Z', state: 'unstarted', stage: 'Swiss', bestOf: 3, teams: [{ code: 'KC', name: 'Karmine Corp' }, { code: 'MVK', name: 'MGN Vikings' }], result: null },
+  ] });
+  const idle = { ...adapt({ status: 'idle' }), status: 'idle' as const };
+  const now = Date.parse('2026-10-20T10:00:00Z');
+  it("both teams' most banned and picked this event, in the draft's rows", () => {
+    const html = draftPanel(ctx({ s: idle, schedule: next, now }));
+    expect(html).toContain('下一場 · 本屆常禁、常選');
+    expect(html.match(/class="dp"/g)).toHaveLength(2);
+    expect(html).toContain('title="夜曲 ×3"');
+    expect(html).not.toContain('下一局 BP 開始後顯示');
+  });
+  it('no next match or no history: the old note', () => {
+    expect(draftPanel(ctx({ s: idle, schedule: null, now }))).toContain('下一局 BP 開始後顯示');
+    expect(draftPanel(ctx({ s: idle, schedule: next, now, history: { teams: null, players: null } }))).toContain('下一局 BP 開始後顯示');
   });
 });
 

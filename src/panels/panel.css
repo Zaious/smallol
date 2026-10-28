@@ -126,6 +126,15 @@ details.tgame summary:hover, details.tgame[open] summary { background: var(--pan
 .gpick { display: grid; grid-template-columns: 34px 78px 1fr; gap: 6px; padding: 0 6px; font-size: 11px; line-height: 18px; }
 .gpick b { font-weight: 600; }
 .gbans { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; padding: 3px 6px 6px; font-size: 10.5px; }
+/* A played match in the schedule: each game, both teams' drafts (0.1.8). */
+.gside { display: flex; align-items: center; gap: 5px; padding: 5px 6px 1px; font: 600 11px var(--mono); }
+.sgames .dot { width: 7px; height: 7px; flex: 0 0 7px; box-shadow: none; }
+.sgames summary b { font-family: var(--mono); font-weight: 600; }
+.sgames summary b.win { color: var(--accent); }
+details.sgames > summary { cursor: pointer; list-style: none; }
+details.sgames > summary::-webkit-details-marker { display: none; }
+details.sgames > summary b::before { content: '▸ '; color: var(--muted); }
+details.sgames[open] > summary b::before { content: '▾ '; }
 .ptable { display: flex; flex-direction: column; gap: 1px; }
 .prow3 { display: grid; grid-template-columns: 1fr 44px 70px 64px; gap: 6px; align-items: center; padding: 0 4px; font-size: 11.5px; line-height: 20px; }
 .prow3 .mono { font-size: 11px; text-align: right; }
