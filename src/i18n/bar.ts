@@ -44,6 +44,7 @@ export interface BarStrings {
     games: string; vs(code: string): string; side: Record<'B' | 'R', string>; win: string; loss: string; bans: string; none: string;
     pool: string; pickedTimes(n: number): string; kda: string; wl(w: number, l: number): string;
     title(n: number): string; presence: string; picks: string; bans2: string; winRate: string; champion: string; few: string; sortBy: string;
+    stageBy: string; stageMain: string; stagePlayIns: string; stageAll: string;
   };
   /** The feed of a game on the bar has stopped, while the official schedule still has the game on (a pause, mostly). */
   paused: string;
@@ -101,6 +102,7 @@ const zh: BarStrings = {
     pool: '本屆英雄', pickedTimes: (n) => `${n} 局`, kda: 'KDA', wl: (w, l) => `${w} 勝 ${l} 負`,
     title: (n) => `世界賽選禁 · ${n} 局`, presence: '出場率', picks: '選', bans2: '禁', winRate: '勝率', champion: '英雄',
     few: '只算本服務有記錄的局，局數少時數字只供參考', sortBy: '排序',
+    stageBy: '階段', stageMain: '主賽', stagePlayIns: '入圍賽', stageAll: '全部',
   },
   paused: '比賽暫停中 · 官方數據暫停更新',
   icon: { mode: '通知模式', history: '歷史', panels: '面板', data: '資料窗', pause: '暫停通知 30 分鐘', resume: '恢復通知', tier: '切換大小', settings: '設定', watch: '看轉播' },
@@ -168,6 +170,7 @@ const en: BarStrings = {
     pool: 'Champions this event', pickedTimes: (n) => `${n} ${n === 1 ? 'game' : 'games'}`, kda: 'KDA', wl: (w, l) => `${w}W ${l}L`,
     title: (n) => `Worlds picks and bans · ${n} games`, presence: 'Presence', picks: 'Picks', bans2: 'Bans', winRate: 'Win rate', champion: 'Champion',
     few: 'Only games this service recorded; with few games the numbers are a rough guide', sortBy: 'Sort',
+    stageBy: 'Stage', stageMain: 'Main event', stagePlayIns: 'Play-ins', stageAll: 'All',
   },
   paused: 'Game paused · the official data has stopped for now',
   hist: { all: 'All', big: 'Big events', game: (n, a, b) => `Game ${n} · ${a} vs ${b}`, empty: 'Nothing yet' },

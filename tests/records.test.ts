@@ -37,14 +37,31 @@ describe('champion statistics', () => {
   });
 
   it('the tab: presence first; win rates only while scores may show', () => {
-    const hidden = championsView(ctx(), B, 'presence');
+    const hidden = championsView(ctx(), B, 'presence', 'playIns');
     expect(hidden).toContain('世界賽選禁 · 19 局');
     expect(hidden).not.toContain('data-champ-sort="win"');
     // Nocturne: picked or banned in every game of the 19 but one.
     expect(hidden.indexOf('夜曲')).toBeLessThan(hidden.indexOf('藍寶'));
-    const shown = championsView(ctx({ spoilerFree: false }), B, 'win');
+    const shown = championsView(ctx({ spoilerFree: false }), B, 'win', 'all');
     expect(shown).toContain('data-champ-sort="win"');
     expect(shown).toMatch(/\d+%<i class="muted"> \d+-\d+<\/i>/);
+  });
+
+  // 0.1.8: the play-ins apart (a few teams, many games), the main event by default.
+  it('stage switch: main event by default, play-ins, all', () => {
+    const tagged = Object.fromEntries(Object.entries(teams).map(([k, gs]) => [k, gs.map((g) => ({ ...g, stage: Number(g.gameId.slice(-1)) % 2 ? 'Swiss' : g.stage }))]));
+    const split = championStats(tagged, (g) => g.stage === 'Play-Ins').games + championStats(tagged, (g) => g.stage !== 'Play-Ins').games;
+    expect(split).toBe(19);
+    const c = ctx({ history: { teams: tagged, players: null } });
+    const main = championsView(c, B, 'presence');
+    expect(main).toContain('data-champ-stage="main" aria-pressed="true"');
+    expect(main).toContain(`世界賽選禁 · ${championStats(tagged, (g) => g.stage !== 'Play-Ins').games} 局`);
+    expect(championsView(c, B, 'presence', 'playIns')).toContain(`世界賽選禁 · ${championStats(tagged, (g) => g.stage === 'Play-Ins').games} 局`);
+    expect(championsView(c, B, 'presence', 'all')).toContain('世界賽選禁 · 19 局');
+    // Only play-ins so far: the main event says there is nothing yet, and the switch stays.
+    const early = championsView(ctx(), B, 'presence');
+    expect(early).toContain(B.rec.none);
+    expect(early).toContain('data-champ-stage="playIns"');
   });
 
   it('with no history: says so', () => {

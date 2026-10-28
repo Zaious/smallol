@@ -100,11 +100,12 @@ export interface ChampStat {
  * a champion is picked or banned at most once per game, so counting each team's own picks and bans
  * counts each game once). `games` is the number of distinct games.
  */
-export function championStats(teams: Record<string, TeamGame[]> | null): { games: number; rows: ChampStat[] } {
+export function championStats(teams: Record<string, TeamGame[]> | null, keep: (g: TeamGame) => boolean = () => true): { games: number; rows: ChampStat[] } {
   const ids = new Set<string>(); const m = new Map<Champion, ChampStat>();
   const row = (c: Champion) => { let r = m.get(c); if (!r) m.set(c, (r = { champion: c, picks: 0, bans: 0, decided: 0, wins: 0 })); return r; };
   for (const games of Object.values(teams ?? {})) {
     for (const g of games) {
+      if (!keep(g)) continue;
       ids.add(g.gameId);
       for (const b of g.bans) if (b) row(b).bans++;
       for (const p of g.picks) {
