@@ -32,7 +32,7 @@ Basesmall 用 Tauri 2.12（Rust 殼 + TypeScript 網頁），Windows 用 WebView
 ## App 內更新（tauri-plugin-updater）
 
 - **設定裡沒有 `plugins.updater`（含 `pubkey`）時，App 啟動就會失敗**：外掛的設定沒有預設值。
-- 更新檔簽章用維護者自己的金鑰（跟 Apple 憑證無關），**私鑰遺失就再也推不了更新**。金鑰由維護者用腳本產生並放進 GitHub Secrets，Claude 不經手（`DesktopMLB/tools/updater-key.ps1`）。
+- 更新檔簽章用維護者自己的金鑰（跟 Apple 憑證無關），**私鑰遺失就再也推不了更新**。金鑰由維護者用腳本產生並放進 GitHub Secrets，Claude 不經手。
 - 只在有金鑰時才產生更新檔（`tauri.updater.conf.json` 的 `createUpdaterArtifacts`），fork 沒有金鑰也能照常建置。
 - `requireSignedVersion: true` 可用：這版 CLI 會把版本號寫進簽章的 trusted comment（實際解開過）。
 - **macOS 的更新檔只從 `app` 打包產生**：只打包 `dmg` 時 `latest.json` 沒有 macOS。要 `--bundles app,dmg`。
@@ -48,7 +48,7 @@ Basesmall 用 Tauri 2.12（Rust 殼 + TypeScript 網頁），Windows 用 WebView
 
 ## macOS 簽章與公證
 
-- Developer ID 憑證可以在 Windows 上產生（openssl），維護者自己跑 `DesktopMLB/tools/macos-signing.ps1`，Claude 不經手私鑰與密碼。
+- Developer ID 憑證可以在 Windows 上產生（openssl），維護者自己跑腳本，Claude 不經手私鑰與密碼。
 - GitHub Actions：**`APPLE_*` 環境變數只要「存在」（即使是空字串）Tauri 就當成要簽**，空的會讓建置失敗。只把有值的寫進 `GITHUB_ENV`。沒有憑證時退回 ad-hoc 簽章（`signingIdentity: "-"`）。
 - 驗證：在 Mac 上 `codesign --verify --deep --strict`、`xcrun stapler validate`、把 App 標成網路下載後 `spctl -a -vvv -t exec`。
 - `gh secret set` 從標準輸入讀值時會去掉結尾換行。
@@ -64,6 +64,3 @@ Basesmall 用 Tauri 2.12（Rust 殼 + TypeScript 網頁），Windows 用 WebView
 
 - PowerShell 5.1 呼叫外部程式時，空字串參數會被丟掉，後面的參數全部往前位移。
 - `Get-CimInstance Win32_Process` 在這台機器上很慢，會讓腳本逾時；找子程序可改用 `Get-Process` 加啟動時間過濾。
-- 程序的 `CommandLine` 欄位不能直接印（會被 env-print-guard 擋，可能含 token）。
-- heredoc 裡不要寫雙反斜線（heredoc-backslash-guard 會擋），改用 Write 工具寫檔。
-- 同一個指令裡 commit 再 push 會被 push-guard 擋，拆成兩個指令。
